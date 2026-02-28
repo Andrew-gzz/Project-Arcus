@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Dropdown } from "bootstrap";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   useEffect(() => {
@@ -166,9 +167,9 @@ function Navbar() {
 
           <ul className="navbar-nav flex-row gap-4 ms-4">
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="/card">
                 Home
-              </a>
+              </Link>
             </li>
             {/* Catalogo */}
             <li className="nav-item dropdown position-relative">
@@ -202,9 +203,9 @@ function Navbar() {
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="/membership">
                 Membresías
-              </a>
+              </Link>
             </li>
 
             <li className="nav-item">
