@@ -1,32 +1,23 @@
 import Carousel from "../../components/carousel/Carousel";
 import CategoryCarousel from "../../components/categoryCarousel/CategoryCarousel";
-import ProductGrid from "../../components/productsGrid/ProductsGrid";
+import ProductGrid, {
+  ProductGrid2,
+} from "../../components/productsGrid/ProductsGrid";
+import { BonCard2, MarkCard } from "../../components/utils/BonCard";
 
 export default function Landing() {
   return (
     <>
+      {/* CARRUSEL PRINCIPAL */}
       <Carousel></Carousel>
       <div className="container">
+        {/* CARRUSEL DE CATEGORIAS */}
         <CategoryCarousel></CategoryCarousel>
+        {/* GRID DE PRODUCTOS */}
         <ProductGrid></ProductGrid>
-        {/* MARKS BANNER */}
-        <div className="bg-white text-dark rounded-4 p-4 shadow-sm">
-          <div className="row align-items-center">
-            {/* Log in Text */}
-            <div className="col text-center">
-              <img src="/src/assets/react.svg" alt="brand"></img>
-            </div>
-            <div className="col text-center">
-              <img src="/src/assets/react.svg" alt="brand"></img>
-            </div>
-            <div className="col text-center">
-              <img src="/src/assets/react.svg" alt="brand"></img>
-            </div>
-            <div className="col text-center">
-              <img src="/src/assets/react.svg" alt="brand"></img>
-            </div>
-          </div>
-        </div>
+        {/* BANNER DE MARCAS */}
+        <MarkCard></MarkCard>
+        {/* ANUNCIO DE DESCUENTOS */}
         <div
           className="py-5 my-5 rounded-4"
           style={{
@@ -39,26 +30,29 @@ export default function Landing() {
           <div className="container position-relative">
             {/* Texto principal */}
             <div className="py-4" style={{ maxWidth: 520 }}>
+              <button className="btn btn-outline-light rounded-pill px-4 py-2 fw-bold">
+                Más información
+              </button>
               <h1
                 className="text-white fw-bold mb-2"
                 style={{ fontSize: "3rem" }}
               >
                 30% de descuento
               </h1>
-              <div className="d-flex gap-3 mt-4">
-                <button
-                  className="btn btn-danger rounded-pill px-4 py-2 fw-bold"
-                  style={{ backgroundColor: "#f02b2b", borderColor: "#f02b2b" }}
-                >
-                  Comprar ahora
-                </button>
-                <button className="btn btn-outline-light rounded-pill px-4 py-2 fw-bold">
-                  Más info
-                </button>
-              </div>
+
+              <button
+                className="btn btn-danger rounded-pill px-4 py-2 fw-bold"
+                style={{ backgroundColor: "#f02b2b", borderColor: "#f02b2b" }}
+              >
+                Comprar ahora
+              </button>
             </div>
           </div>
         </div>
+        {/* Productos */}
+        <ProductGrid2></ProductGrid2>
+        {/*Benedicios card */}
+        <BonCard2></BonCard2>
       </div>
     </>
   );

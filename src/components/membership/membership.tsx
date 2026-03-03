@@ -1,6 +1,4 @@
-import ExpansionIcon from "/src/assets/Chevrons.svg";
-import VarietyIcon from "/src/assets/Bookmark.svg";
-import MaintenanceIcon from "/src/assets/Settings.svg";
+import BonCard from "../utils/BonCard";
 
 type MembershipCardProps = {
   title: string;
@@ -107,98 +105,7 @@ export default function Membership() {
       </section>
       <div className="container my-4">
         {/* Panel de beneficios */}
-        <div
-          className="rounded-4 p-4 mt-5"
-          style={{
-            backgroundColor: "rgba(24, 92, 120, 0.95)",
-            boxShadow: "0 12px 30px rgba(0,0,0,.35)",
-          }}
-        >
-          <div className="row g-4 align-items-center">
-            {/* Beneficio 1 */}
-            <div className="col-12 col-md-4">
-              <div className="d-flex gap-3 align-items-start">
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-3"
-                  style={{
-                    width: 46,
-                    height: 46,
-                    backgroundColor: "rgba(255,255,255,.08)",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={ExpansionIcon}
-                    alt="Icono Expansión"
-                    style={{ width: 24, height: 24 }}
-                  />
-                </div>
-                <div>
-                  <div className="text-white fw-bold fs-5">
-                    Expande tu negocio
-                  </div>
-                  <div className="text-white-50 small">
-                    Mejora tu arcade con nuestras membresías
-                  </div>
-                </div>
-              </div>{" "}
-            </div>
-
-            {/* Beneficio 2 */}
-            <div className="col-12 col-md-4">
-              <div className="d-flex gap-3 align-items-start">
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-3"
-                  style={{
-                    width: 46,
-                    height: 46,
-                    backgroundColor: "rgba(255,255,255,.08)",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={VarietyIcon}
-                    alt="Icono Variedad"
-                    style={{ width: 24, height: 24 }}
-                  />
-                </div>
-                <div>
-                  <div className="text-white fw-bold fs-5">Variedad amplia</div>
-                  <div className="text-white-50 small">
-                    Renta múltiples máquinas de nuestra selección
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Beneficio 3 */}
-            <div className="col-12 col-md-4">
-              <div className="d-flex gap-3 align-items-start">
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-3"
-                  style={{
-                    width: 46,
-                    height: 46,
-                    backgroundColor: "rgba(255,255,255,.08)",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={MaintenanceIcon}
-                    alt="Icono Mantenimiento"
-                    style={{ width: 24, height: 24 }}
-                  />
-                </div>
-                <div>
-                  <div className="text-white fw-bold fs-5">Mantenimiento</div>
-                  <div className="text-white-50 small">
-                    Reparación de cualquier gabinete sin costos extra
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BonCard></BonCard>
 
         {/* Texto inferior */}
         <div className="text-center mt-4">
