@@ -1,3 +1,7 @@
+import ExpansionIcon from "/src/assets/Chevrons.svg";
+import VarietyIcon from "/src/assets/Bookmark.svg";
+import MaintenanceIcon from "/src/assets/Settings.svg";
+
 type MembershipCardProps = {
   title: string;
   subtitle: string;
@@ -111,6 +115,7 @@ export default function Membership() {
           }}
         >
           <div className="row g-4 align-items-center">
+            {/* Beneficio 1 */}
             <div className="col-12 col-md-4">
               <div className="d-flex gap-3 align-items-start">
                 <div
@@ -119,12 +124,14 @@ export default function Membership() {
                     width: 46,
                     height: 46,
                     backgroundColor: "rgba(255,255,255,.08)",
-                    color: "#E9F400",
-                    fontSize: 26,
                     flex: "0 0 auto",
                   }}
                 >
-                  ⏫
+                  <img
+                    src={ExpansionIcon}
+                    alt="Icono Expansión"
+                    style={{ width: 24, height: 24 }}
+                  />
                 </div>
                 <div>
                   <div className="text-white fw-bold fs-5">
@@ -134,9 +141,10 @@ export default function Membership() {
                     Mejora tu arcade con nuestras membresías
                   </div>
                 </div>
-              </div>
+              </div>{" "}
             </div>
 
+            {/* Beneficio 2 */}
             <div className="col-12 col-md-4">
               <div className="d-flex gap-3 align-items-start">
                 <div
@@ -145,12 +153,14 @@ export default function Membership() {
                     width: 46,
                     height: 46,
                     backgroundColor: "rgba(255,255,255,.08)",
-                    color: "#E9F400",
-                    fontSize: 26,
                     flex: "0 0 auto",
                   }}
                 >
-                  🔖
+                  <img
+                    src={VarietyIcon}
+                    alt="Icono Variedad"
+                    style={{ width: 24, height: 24 }}
+                  />
                 </div>
                 <div>
                   <div className="text-white fw-bold fs-5">Variedad amplia</div>
@@ -161,6 +171,7 @@ export default function Membership() {
               </div>
             </div>
 
+            {/* Beneficio 3 */}
             <div className="col-12 col-md-4">
               <div className="d-flex gap-3 align-items-start">
                 <div
@@ -169,12 +180,14 @@ export default function Membership() {
                     width: 46,
                     height: 46,
                     backgroundColor: "rgba(255,255,255,.08)",
-                    color: "#E9F400",
-                    fontSize: 26,
                     flex: "0 0 auto",
                   }}
                 >
-                  ⚙️
+                  <img
+                    src={MaintenanceIcon}
+                    alt="Icono Mantenimiento"
+                    style={{ width: 24, height: 24 }}
+                  />
                 </div>
                 <div>
                   <div className="text-white fw-bold fs-5">Mantenimiento</div>

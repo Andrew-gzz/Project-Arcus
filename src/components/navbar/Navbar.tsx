@@ -22,14 +22,14 @@ function Navbar() {
         style={{ backgroundColor: "#0C062E" }}
       >
         <div className="container">
-          <a className="navbar-brand" href="/">
+          <Link className="navbar-brand" to="/">
             <img
               src="src/assets/logo.png"
               alt="Proyect Arcus"
               width="auto"
               height="48"
             />
-          </a>
+          </Link>
 
           <button
             className="navbar-toggler"
@@ -167,7 +167,7 @@ function Navbar() {
 
           <ul className="navbar-nav flex-row gap-4 ms-4">
             <li className="nav-item">
-              <Link className="nav-link" to="/card">
+              <Link className="nav-link" to="/">
                 Home
               </Link>
             </li>
