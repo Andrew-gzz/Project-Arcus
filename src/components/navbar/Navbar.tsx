@@ -1,19 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Dropdown } from "bootstrap";
 import { Link } from "react-router-dom";
 
-function Navbar() {
+export default function Navbar() {
+  //Estado para controlar la visibilidad del Toast
+  const [showLogoutToast, setShowLogoutToast] = useState(false);
+
   useEffect(() => {
-    // This looks for all elements with the dropdown-toggle attribute
-    // and initializes them specifically for this component.
     const dropdownElementList = document.querySelectorAll(".dropdown-toggle");
     const dropdownList = [...dropdownElementList].map((el) => new Dropdown(el));
-
-    // Cleanup when component unmounts to prevent memory leaks
     return () => {
       dropdownList.forEach((dropdown) => dropdown.dispose());
     };
   }, []);
+
+  // Función para manejar el cierre de sesión real
+  const handleConfirmLogout = () => {
+    console.log("Sesión cerrada");
+    setShowLogoutToast(false);
+    // Aquí rediriges o limpias el estado de auth
+  };
 
   return (
     <header className="sticky-top">
@@ -43,10 +49,9 @@ function Navbar() {
           <div className="collapse navbar-collapse" id="navContent">
             <div className="navbar-nav me-auto"></div>
 
-            {/* SEARCH BAR - Visual Fix applied here */}
             <form
               className="d-flex mx-auto my-2 my-lg-0"
-              style={{ flex: "0 1 500px" }} // Slightly wider for the text button
+              style={{ flex: "0 1 500px" }}
             >
               <div
                 className="input-group bg-white rounded-pill p-1 shadow-sm"
@@ -68,7 +73,6 @@ function Navbar() {
               </div>
             </form>
 
-            {/* TOOLBAR */}
             <ul className="navbar-nav ms-auto align-items-center gap-1">
               <li className="nav-item dropdown">
                 <button
@@ -77,15 +81,7 @@ function Navbar() {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                    fill="#e3e3e3"
-                  >
-                    <path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q53 0 100-15.5t86-44.5q-39-29-86-44.5T480-280q-53 0-100 15.5T294-220q39 29 86 44.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z" />
-                  </svg>
+                  <img src="/src/assets/user.svg" alt="user" />
                 </button>
                 <ul
                   className="dropdown-menu dropdown-menu-end"
@@ -106,12 +102,19 @@ function Navbar() {
                   </li>
                   <li>
                     <a className="dropdown-item" href="/profile">
-                      Profile
+                      Perfil
                     </a>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => setShowLogoutToast(true)}
+                    >
+                      Cerrar sesión
+                    </button>
                   </li>
                 </ul>
               </li>
-
               {/*CARRITO DE COMPRAS */}
               <li className="nav-item">
                 <Link className="nav-link position-relative" to="/cart">
@@ -232,8 +235,69 @@ function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/*Renderizar el ToastMessage*/}
+      <ToastMessage
+        show={showLogoutToast}
+        onClose={() => setShowLogoutToast(false)}
+        onConfirm={handleConfirmLogout}
+      />
     </header>
   );
 }
 
-export default Navbar;
+/*TOAST SECTION */
+interface ToastProps {
+  show: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+function ToastMessage({ show, onClose, onConfirm }: ToastProps) {
+  if (!show) return null;
+
+  return (
+    <div
+      className="toast-container position-fixed top-50 start-50 translate-middle"
+      style={{ zIndex: 2000 }}
+    >
+      <div
+        className="toast show shadow-lg border rounded-4 overflow-hidden"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        style={{ minWidth: "300px" }}
+      >
+        <div className="toast-header bg-dark text-white border-bottom border-secondary p-3">
+          <strong className="me-auto fs-5">Confirmación</strong>
+          <button
+            type="button"
+            className="btn-close btn-close-white"
+            onClick={onClose}
+          ></button>
+        </div>
+        <div className="toast-body bg-dark text-white p-4 text-center">
+          <p className="mb-4 fs-6">
+            ¿Estás seguro de que deseas cerrar sesión?
+          </p>
+          <div className="d-flex justify-content-center gap-3">
+            <button
+              type="button"
+              className="btn btn-danger px-4 rounded-pill fw-bold"
+              onClick={onConfirm}
+            >
+              Sí, salir
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-light px-4 rounded-pill"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

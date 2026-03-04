@@ -7,23 +7,24 @@ export default function Catalog() {
   return (
     <>
       {/*Breadcrumb */}
-      <nav
-        className="container my-4"
-        aria-label="breadcrumb"
-        style={{ ["--bs-breadcrumb-divider" as any]: "'>'" }}
-      >
-        <ol className="breadcrumb breadcrumb-white-divider">
+      <nav className="container py-4" aria-label="breadcrumb">
+        <ol className="breadcrumb mb-0">
           <li className="breadcrumb-item">
-            <Link to="/">Inicio</Link>
+            <Link
+              to="/"
+              className="text-warning text-decoration-none opacity-75"
+            >
+              Inicio
+            </Link>
           </li>
-          <li
-            className="breadcrumb-item active text-warning"
-            aria-current="page"
-          >
-            Catálogo de Nintendo
+          <li className="breadcrumb-item">
+            <Link to="/catalog" className="text-warning text-decoration-none">
+              Catálogo de Nintendo
+            </Link>
           </li>
         </ol>
       </nav>
+
       <div className="container">
         <div className="row g-4">
           <div className="col-12 col-lg-3">

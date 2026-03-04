@@ -14,7 +14,7 @@ export default function Cart() {
       className="min-vh-100 text-light pb-5"
       style={{ backgroundColor: "#0b0819" }}
     >
-      {/* Breadcrumb - Se mantiene igual */}
+      {/* Breadcrumb*/}
       <nav className="container py-4" aria-label="breadcrumb">
         <ol className="breadcrumb mb-0">
           <li className="breadcrumb-item">
