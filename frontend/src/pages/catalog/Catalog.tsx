@@ -1,30 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ProductGrid3 } from "../../components/productsGrid/ProductsGrid";
 import "./FiltersSidebar.css";
 import FiltersSidebar from "../../components/utils/FilterSidebar";
+import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 
 export default function Catalog() {
+  const { category } = useParams();
+
+  const categoryName = category
+    ? category.charAt(0).toUpperCase() + category.slice(1)
+    : "General";
+
+  const breadcrumbPaths: BreadcrumbItem[] = [
+    { name: "Inicio", url: "/" },
+    {
+      name: `Catálogo de ${categoryName}`,
+      url: category ? `/catalog/${category}` : "/catalog",
+    },
+  ];
   return (
     <>
       {/*Breadcrumb */}
-      <nav className="container py-4" aria-label="breadcrumb">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link
-              to="/"
-              className="text-warning text-decoration-none opacity-75"
-            >
-              Inicio
-            </Link>
-          </li>
-          <li className="breadcrumb-item">
-            <Link to="/catalog" className="text-warning text-decoration-none">
-              Catálogo de Nintendo
-            </Link>
-          </li>
-        </ol>
-      </nav>
-
+      <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
+      {/*GRID DE PRODUCTOS */}
       <div className="container">
         <div className="row g-4">
           <div className="col-12 col-lg-3">

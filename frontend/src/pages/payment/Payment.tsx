@@ -1,34 +1,18 @@
 import { Link } from "react-router-dom";
 import "../signin/SignIn.css";
+import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
+
 export default function Payment() {
+  const breadcrumbPaths: BreadcrumbItem[] = [
+    { name: "Inicio", url: "/" },
+    { name: "Carrito de compras", url: "/cart" },
+    { name: "Pago" },
+  ];
+
   return (
     <>
       {/*Breadcrumb */}
-      <nav className="container mt-4" aria-label="breadcrumb">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link
-              to="/"
-              className="text-warning text-decoration-none opacity-75"
-            >
-              Inicio
-            </Link>
-          </li>
-          <li className="breadcrumb-item">
-            <Link
-              to="/"
-              className="text-warning text-decoration-none opacity-75"
-            >
-              Carrito
-            </Link>
-          </li>
-          <li className="breadcrumb-item">
-            <Link to="/payment" className="text-warning text-decoration-none">
-              Pago
-            </Link>
-          </li>
-        </ol>
-      </nav>
+      <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
 
       <div className="container">
         <div className="row">

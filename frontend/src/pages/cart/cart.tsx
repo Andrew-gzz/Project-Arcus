@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 
 export default function Cart() {
   // Colores personalizados solicitados
@@ -8,28 +9,15 @@ export default function Cart() {
     summaryHeader: "#1B5A7D",
     btnProceed: "#1B5A7D",
   };
+  const breadcrumbPaths: BreadcrumbItem[] = [
+    { name: "Inicio", url: "/" },
+    { name: "Carrito de compras" },
+  ];
 
   return (
     <div className="min-vh-100 text-light pb-5">
       {/* Breadcrumb*/}
-      <nav className="container py-4" aria-label="breadcrumb">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link
-              to="/"
-              className="text-warning text-decoration-none opacity-75"
-            >
-              Inicio
-            </Link>
-          </li>
-          <li
-            className="breadcrumb-item active text-warning"
-            aria-current="page"
-          >
-            Carrito
-          </li>
-        </ol>
-      </nav>
+      <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
 
       <div className="container">
         <div className="row g-4">

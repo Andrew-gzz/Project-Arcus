@@ -101,7 +101,7 @@ export default function FiltersSidebar() {
   ];
 
   return (
-    <aside className="arcus-filter p-3 rounded-4">
+    <aside className="arcus-filter p-3 rounded-4 border-0">
       {/* Categorías */}
       <SectionHeader title="Categorías" rightAction={<ResetLink />} />
       <div className="mb-1">

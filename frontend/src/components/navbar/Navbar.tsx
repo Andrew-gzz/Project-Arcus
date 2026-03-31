@@ -163,19 +163,29 @@ export default function Navbar() {
             </button>
             <ul className="dropdown-menu">
               <li>
-                <a className="dropdown-item" href="#">
-                  Categoría 1
-                </a>
+                <Link className="dropdown-item" to="/catalog/nintendo">
+                  Nintendo
+                </Link>
               </li>
               <li>
-                <a className="dropdown-item" href="#">
-                  Categoría 2
-                </a>
+                <Link className="dropdown-item" to="/catalog/playstation">
+                  Playstation
+                </Link>
               </li>
               <li>
-                <a className="dropdown-item" href="#">
-                  Categoría 3
-                </a>
+                <Link className="dropdown-item" to="/catalog/xbox">
+                  Xbox
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" to="/catalog/steam">
+                  Steam
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" to="/catalog/accesorios">
+                  Accesorios
+                </Link>
               </li>
             </ul>
           </div>
@@ -185,36 +195,6 @@ export default function Navbar() {
               <Link className="nav-link" to="/">
                 Inicio
               </Link>
-            </li>
-            {/* Catalogo */}
-            <li className="nav-item dropdown position-relative">
-              <a
-                className="nav-link dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Catálogo
-              </a>
-
-              <ul className="dropdown-menu mt-2 position-absolute">
-                <li>
-                  <Link className="dropdown-item" to="/catalog">
-                    Nintendo
-                  </Link>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Catálogo 2
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Catálogo 3
-                  </a>
-                </li>
-              </ul>
             </li>
 
             <li className="nav-item">

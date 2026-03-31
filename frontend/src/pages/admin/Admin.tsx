@@ -1,6 +1,7 @@
 import { useState } from "react"; // 1. Importamos useState
 import { Link } from "react-router-dom";
 import AddProduct from "../../components/modal/AddingProduct"; //Este es la funcion del modal
+import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 
 export default function Admin() {
   // 2. Definimos el estado para mostrar/ocultar el modal
@@ -32,26 +33,16 @@ export default function Admin() {
     },
     // Puedes repetir o agregar más objetos aquí
   ];
+
+  const breadcrumbPaths: BreadcrumbItem[] = [
+    { name: "Inicio", url: "/" },
+    { name: "Lista de productos" },
+  ];
   return (
     <>
       {/*Breadcrumb */}
-      <nav className="container py-4" aria-label="breadcrumb">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link
-              to="/"
-              className="text-warning text-decoration-none opacity-75"
-            >
-              Inicio
-            </Link>
-          </li>
-          <li className="breadcrumb-item">
-            <Link to="/admin" className="text-warning text-decoration-none">
-              Administración de productos
-            </Link>
-          </li>
-        </ol>
-      </nav>
+      <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
+
       {/*SECCION 1 */}
       <div className="container mb-4">
         <div className="row text-light">

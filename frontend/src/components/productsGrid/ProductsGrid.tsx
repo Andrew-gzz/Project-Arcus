@@ -29,7 +29,7 @@ export default function ProductGrid() {
             (cat, i) => (
               <button
                 key={i}
-                className={`btn rounded-pill px-4 border-secondary text-white ${i === 0 ? "border-danger" : ""}`}
+                className={`btn rounded-pill px-4 border-secondary bg-transparent text-white ${i === 0 ? "border-danger" : ""}`}
                 style={{ backgroundColor: "#1e1b33", fontSize: "0.8rem" }}
               >
                 {cat}
@@ -44,7 +44,7 @@ export default function ProductGrid() {
         {[...products, ...products].map((product, index) => (
           <div className="col" key={index}>
             <div
-              className="card h-100 border-0 rounded-4 overflow-hidden"
+              className="card h-100 border rounded-4 overflow-hidden"
               style={{ backgroundColor: "#1e1b33" }}
             >
               {/* Parte Superior: Imagen y Heart */}
@@ -74,7 +74,7 @@ export default function ProductGrid() {
               {/* Parte Inferior: Info */}
               <div
                 className="card-body text-white p-3"
-                style={{ backgroundColor: "#110f24" }}
+                style={{ backgroundColor: "#0C062E" }}
               >
                 <h6 className="mb-2 fw-bold">{product.name}</h6>
                 <p className="text-warning fw-bold mb-1">{product.price}</p>
@@ -129,7 +129,7 @@ export function ProductGrid2() {
       <div className="row align-items-stretch mb-5">
         {/*Seccion 1 */}
         <div className="col-sm-6 mb-3 mb-sm-0">
-          <div className="row g-0 rounded-4 overflow-hidden h-100">
+          <div className="row g-0 rounded-4 overflow-hidden h-100 border">
             {/* Imagen */}
             <div className="col-md-4">
               <img
@@ -164,7 +164,7 @@ export function ProductGrid2() {
         {/* Seccion 2 */}
         <div className="col-sm-6 d-flex gap-4 flex-sm-column">
           {/*PRODUCTO 2 */}
-          <div className="row g-0 rounded-4 overflow-hidden">
+          <div className="row g-0 rounded-4 overflow-hidden border">
             {/* Imagen */}
             <div className="col-md-4">
               <img
@@ -196,7 +196,7 @@ export function ProductGrid2() {
             </div>
           </div>
           {/*PRODUCTO 3 */}
-          <div className="row g-0 rounded-4 overflow-hidden">
+          <div className="row g-0 rounded-4 overflow-hidden border">
             {/* Imagen */}
             <div className="col-md-4">
               <img
@@ -270,7 +270,7 @@ export function ProductGrid3() {
         {[...products, ...products].map((product, index) => (
           <div className="col" key={index}>
             <div
-              className="card h-100 border-0 rounded-4 overflow-hidden"
+              className="card h-100 border rounded-4 overflow-hidden"
               style={{ backgroundColor: "#1e1b33" }}
             >
               {/* Parte Superior: Imagen y Heart */}
@@ -300,7 +300,7 @@ export function ProductGrid3() {
               {/* Parte Inferior: Info */}
               <div
                 className="card-body text-white p-3"
-                style={{ backgroundColor: "#110f24" }}
+                style={{ backgroundColor: "#0C062E" }}
               >
                 <h6 className="mb-2 fw-bold">{product.name}</h6>
                 <p className="text-warning fw-bold mb-1">{product.price}</p>
