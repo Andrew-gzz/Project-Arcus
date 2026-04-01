@@ -1,80 +1,62 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// frontend/src/services/authService.ts
+import { apiClient } from "../api/client";
 
-export interface RegisterPayload {
-  email: string;
-  username: string;
-  password: string;
-}
+/**
+ * Basado en tu User.js, los datos del usuario
+ * incluyen email, username, password y opcionalmente type.
+ */
 
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  username: string;
-  type: "client" | "admin";
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
-}
-
-const handleResponse = async (response: Response) => {
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Ocurrió un error");
+// Iniciar sesión
+export const login = async (email: string, password: string) => {
+  try {
+    const data = await apiClient("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    // El backend devuelve { user: { id, email, username, type }, token }
+    return data;
+  } catch (error: any) {
+    throw error.message;
   }
-
-  return data;
 };
 
-export const authService = {
-  async register(payload: RegisterPayload): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/register`, {
+// Registrar nuevo usuario
+export const register = async (userData: {
+  email: string;
+  username: string;
+  password: string;
+}) => {
+  try {
+    const data = await apiClient("/auth/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(payload),
+      body: JSON.stringify(userData),
     });
+    return data;
+  } catch (error: any) {
+    throw error.message;
+  }
+};
 
-    return handleResponse(response);
-  },
-
-  async login(payload: LoginPayload): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
+// Cerrar sesión
+export const logout = async () => {
+  try {
+    const data = await apiClient("/auth/logout", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(payload),
     });
+    return data;
+  } catch (error: any) {
+    throw error.message;
+  }
+};
 
-    return handleResponse(response);
-  },
-
-  async logout(): Promise<{ message: string }> {
-    const response = await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    return handleResponse(response);
-  },
-
-  async getProfile(): Promise<{ user: User }> {
-    const response = await fetch(`${API_URL}/auth/me`, {
+// Obtener perfil del usuario actual (Ruta protegida)
+export const getMe = async () => {
+  try {
+    const data = await apiClient("/auth/me", {
       method: "GET",
-      credentials: "include",
     });
-
-    return handleResponse(response);
-  },
+    return data;
+  } catch (error: any) {
+    throw error.message;
+  }
 };
