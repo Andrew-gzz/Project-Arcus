@@ -1,3 +1,4 @@
+//backend/routes/auth.js
 import express from "express";
 import { protect } from "../middleware/auth.js";
 import {

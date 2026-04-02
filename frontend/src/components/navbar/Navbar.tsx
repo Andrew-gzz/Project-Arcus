@@ -1,12 +1,23 @@
+//frontend/src/components/navbar/Navbar.tsx
 import { useEffect, useState } from "react";
 import { Dropdown } from "bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../../services/authService"; // Importamos tu servicio
 
 export default function Navbar() {
-  //Estado para controlar la visibilidad del Toast
+  const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
 
+  // Estado para saber si hay un usuario y mostrar su nombre
+  const [user, setUser] = useState<{ username: string } | null>(null);
+
   useEffect(() => {
+    // Revisar si hay un usuario al cargar el componente
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     const dropdownElementList = document.querySelectorAll(".dropdown-toggle");
     const dropdownList = [...dropdownElementList].map((el) => new Dropdown(el));
     return () => {
@@ -15,10 +26,16 @@ export default function Navbar() {
   }, []);
 
   // Función para manejar el cierre de sesión real
-  const handleConfirmLogout = () => {
-    console.log("Sesión cerrada");
-    setShowLogoutToast(false);
-    // Aquí rediriges o limpias el estado de auth
+  const handleConfirmLogout = async () => {
+    try {
+      await logout(); // 1. Llama al backend para borrar la cookie
+      localStorage.removeItem("user"); // 2. Borra los datos locales
+      setUser(null); // 3. Actualiza la UI
+      setShowLogoutToast(false);
+      navigate("/signin"); // 4. Redirige al login
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
 
   return (

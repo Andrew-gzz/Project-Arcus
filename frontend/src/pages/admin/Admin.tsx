@@ -16,6 +16,8 @@ export default function Admin() {
     // Aquí irá tu lógica futura para guardar el producto
     setShowModal(false);
   };
+
+  //LISTA DE PRODUCTOS
   const products = [
     {
       name: "Nintendo Switch 2",

@@ -1,150 +1,214 @@
+// frontend/src/components/modal/AddingProduct.tsx
+import { useState } from "react";
+import { addProduct } from "../../services/productService";
 interface ToastProps {
   show: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  // Cambiamos onConfirm para que reciba los datos validados
+  onConfirm: (productData: any) => void;
 }
 
 export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    image: "",
+    stock: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(""); // Mensaje de éxito
+
   if (!show) return null;
 
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError(""); // Limpiar error al escribir
+  };
+
+  const handleSumbit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    // --- LOGICA DE VALIDACIONES ---
+
+    // 1. Campos obligatorios
+    if (
+      !form.name ||
+      !form.description ||
+      !form.price ||
+      !form.category ||
+      !form.image
+    ) {
+      setError("Todos los campos marcados con * son obligatorios");
+      setLoading(false);
+      return;
+    }
+
+    // 2. Validación de Precio (Número positivo)
+    if (parseInt(form.price) <= 0) {
+      setError("El precio debe ser un número mayor a 0");
+      setLoading(false);
+      return;
+    }
+
+    // 3. Validación de Stock (Entero no negativo)
+    if (parseInt(form.stock) < 0) {
+      setError("El stock no puede ser negativo");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Si pasa todas las validaciones, enviamos los datos al padre (Admin.tsx)
+      setSuccess("");
+
+      const productData = await addProduct({
+        name: form.name,
+        description: form.description,
+        price: Number(form.price),
+        category: form.category,
+        image: form.image,
+        stock: Number(form.stock),
+      });
+
+      setSuccess(`Producto agregado correctamente`);
+
+      setTimeout(() => {
+        onConfirm(productData);
+      }, 1200);
+      // Limpiar formulario tras éxito
+      setForm({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        image: "",
+        stock: "",
+      });
+    } catch (err: any) {
+      setError(err.message || "Error al guardar el producto");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-      {/* El Modal/Toast */}
+    <div
+      className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center"
+      style={{ zIndex: 2500 }}
+    >
       <div
-        className="toast-container position-fixed top-50 start-50 translate-middle"
-        style={{ zIndex: 2050 }} // Un z-index alto para estar arriba de todo
+        className="bg-dark text-white p-4 rounded-4 shadow-lg border border-secondary"
+        style={{ width: "500px", zIndex: 2501 }}
       >
-        <div
-          className="toast show shadow-lg border rounded-4 overflow-hidden"
-          role="alert"
-        >
-          {/*CERRAR MODAL */}
-          <div className="toast-header bg-dark text-white border-bottom border-secondary p-3">
-            <strong className="me-auto fs-5">Añadir Producto</strong>
+        <h2 className="mb-4 text-center">Agregar Producto</h2>
+
+        <form onSubmit={handleSumbit}>
+          <div className="mb-3">
+            <label className="form-label">Nombre del Producto *</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="form-control bg-secondary text-white border-0"
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Descripción del producto *</label>
+            <input
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              className="form-control bg-secondary text-white border-0"
+            />
+          </div>
+          <div className="row">
+            <div className="col-6 mb-3">
+              <label className="form-label">Precio *</label>
+              <input
+                type="number"
+                name="price"
+                value={form.price}
+                onChange={handleChange}
+                className="form-control bg-secondary text-white border-0"
+              />
+            </div>
+            <div className="col-6 mb-3">
+              <label className="form-label">Stock</label>
+              <input
+                type="number"
+                name="stock"
+                value={form.stock}
+                onChange={handleChange}
+                className="form-control bg-secondary text-white border-0"
+              />
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Categoría *</label>
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              className="form-select bg-secondary text-white border-0"
+            >
+              <option value="">Selecciona...</option>
+              <option value="VideoJuegos">VideoJuegos</option>
+              <option value="Consolas">Consolas</option>
+              <option value="Accesorios">Accesorios</option>
+              <option value="Controles">Controles</option>
+            </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">URL de Imagen *</label>
+            <input
+              name="image"
+              value={form.image}
+              onChange={handleChange}
+              className="form-control bg-secondary text-white border-0"
+            />
+          </div>
+
+          {error && <div className="alert alert-danger py-2">{error}</div>}
+          {success && (
+            <div className="alert alert-success py-2" role="alert">
+              {success}
+            </div>
+          )}
+          <div className="d-flex justify-content-center gap-3 mt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-info px-4 rounded-pill fw-bold"
+            >
+              {loading ? "Guardando..." : "Sí, continuar"}
+            </button>
             <button
               type="button"
-              className="btn-close btn-close-white"
+              className="btn btn-outline-light px-4 rounded-pill"
               onClick={onClose}
-            ></button>
+            >
+              Cancelar
+            </button>
           </div>
-          {/*BODY DEL MODAL*/}
-          <div className="toast-body bg-dark text-white p-4 text-start">
-            {/* NOMBRE */}
-            <div className="mb-4">
-              <label className="form-label mb-1">Nombre del producto</label>
-              <input
-                type="text"
-                className="form-control arcus-input"
-                placeholder="--> Aquí va el nombre <--"
-              />
-            </div>
-            {/* CATEGORÍA */}
-            <div className="mb-4">
-              <label className="form-label text-white-50 mb-1">Categoría</label>
-
-              <select className="form-select arcus-input" defaultValue="">
-                <option value="" disabled>
-                  Selecciona la categoría
-                </option>
-                <option value="1">Videojuegos</option>
-                <option value="2">Accesorios</option>
-                <option value="3">Regalos</option>
-              </select>
-            </div>
-
-            {/* URL / ARCHIVO DE IMAGEN */}
-            <div className="mb-4">
-              <label className="form-label text-white-50 mb-1">
-                URL de la imagen
-              </label>
-
-              <input type="file" className="form-control arcus-input " />
-            </div>
-            {/* PRECIO Y STOCK EN LA MISMA LÍNEA */}
-            <div className="row mb-4">
-              {/* COLUMNA PRECIO */}
-              <div className="col-6">
-                <label className="form-label mb-1">Precio</label>
-                <div className="d-flex align-items-center border-bottom border-secondary">
-                  <span className="pe-2 text-secondary">$</span>
-                  <input
-                    type="number"
-                    className="form-control arcus-input border-0" // Quitamos el border-bottom aquí para que no se duplique
-                    placeholder="0.00"
-                    style={{ borderBottom: "none !important" }}
-                  />
-                </div>
-              </div>
-
-              {/* COLUMNA STOCK CON BOTONES APILADOS */}
-              <div className="col-6">
-                <label className="form-label mb-1">Stock</label>
-                <div className="position-relative">
-                  <input
-                    type="number"
-                    className="form-control arcus-input pe-4" // pe-4 deja espacio para los botones
-                    placeholder="0"
-                  />
-                  {/* CONTENEDOR DE BOTONES APILADOS */}
-                  <div
-                    className="position-absolute end-0 top-50 translate-middle-y d-flex flex-column pe-2"
-                    style={{ height: "100%", justifyContent: "center" }}
-                  >
-                    <button
-                      type="button"
-                      className="btn p-0 text-white lh-1 border-0 mb-1"
-                      style={{ fontSize: "10px", opacity: 0.7 }}
-                    >
-                      ▲
-                    </button>
-                    <button
-                      type="button"
-                      className="btn p-0 text-white lh-1 border-0"
-                      style={{ fontSize: "10px", opacity: 0.7 }}
-                    >
-                      ▼
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* DESCRIPCIÓN */}
-            <div className="mb-4">
-              <label className="form-label mb-1">Descripción</label>
-              <input
-                type="text"
-                className="form-control arcus-input"
-                placeholder="¿De qué se trata tu producto?"
-              />
-            </div>
-
-            {/*CONFIRMACION DEL MODAL */}
-            <div className="d-flex justify-content-center gap-3">
-              <button
-                type="button"
-                className="btn btn-danger px-4 rounded-pill fw-bold"
-                onClick={onConfirm} // Ejecuta acción y cierra
-              >
-                Sí, continuar
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline-light px-4 rounded-pill"
-                onClick={onClose} // Cierra con Cancelar
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
+        </form>
       </div>
-
-      {/* FONDO OSCURO*/}
       <div
         className="position-fixed top-0 start-0 w-100 vh-100 bg-black opacity-75"
-        style={{ zIndex: 2000, cursor: "pointer" }}
-        onClick={onClose} // <--- Esto hace que se cierre al hacer clic fuera
-      ></div>
-    </>
+        onClick={onClose}
+      />
+    </div>
   );
 }
