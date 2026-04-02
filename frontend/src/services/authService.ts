@@ -1,11 +1,6 @@
 // frontend/src/services/authService.ts
 import { apiClient } from "../api/client";
 
-/**
- * Basado en tu User.js, los datos del usuario
- * incluyen email, username, password y opcionalmente type.
- */
-
 // Iniciar sesión
 export const login = async (email: string, password: string) => {
   try {

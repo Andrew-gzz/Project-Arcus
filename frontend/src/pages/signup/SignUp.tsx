@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import ExtLogIn from "../../components/utils/ExtLogIn";
-import { authService } from "../../services/authService";
-import "../signin/SignIn.css";
+import { useState } from "react"; // Hook para manejar estado en React
+import { Link, useNavigate } from "react-router-dom"; // Navegación entre rutas
+import ExtLogIn from "../../components/utils/ExtLogIn"; // Componente externo (login social u otro)
+import { register } from "../../services/authService"; // Servicio que conecta con el backend
+import "../signin/SignIn.css"; // Estilos
 
 function SignUpPage() {
+  // Hook para redireccionar después del registro
   const navigate = useNavigate();
 
+  // Estado principal del formulario (datos que escribe el usuario)
   const [form, setForm] = useState({
     email: "",
     username: "",
@@ -14,24 +16,31 @@ function SignUpPage() {
     confirmPassword: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  // Estados auxiliares para UX
+  const [loading, setLoading] = useState(false); // Para mostrar "Registrando..."
+  const [error, setError] = useState(""); // Mensajes de error
+  const [success, setSuccess] = useState(""); // Mensaje de éxito
 
+  // Maneja cambios en inputs (onChange)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
+    // Actualiza dinámicamente el campo correspondiente
     setForm((prev) => ({
-      ...prev,
-      [name]: value,
+      ...prev, // mantiene los otros valores
+      [name]: value, // actualiza solo el input modificado
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Event handler del formulario (submit)
+  const handleSubmit = async (e: React.SubmitEvent) => {
+    e.preventDefault(); // evita recarga de la página
+
+    // Limpia mensajes anteriores
     setError("");
     setSuccess("");
 
+    // VALIDACIONES FRONTEND
     if (
       !form.email ||
       !form.username ||
@@ -52,35 +61,40 @@ function SignUpPage() {
       return;
     }
 
+    // CONEXIÓN CON BACKEND
     try {
-      setLoading(true);
+      setLoading(true); // activa estado de carga
 
-      const data = await authService.register({
+      // Llamada al servicio (fetch al backend)
+      const data = await register({
         email: form.email,
         username: form.username,
         password: form.password,
       });
 
+      // Mensaje de éxito usando respuesta del backend
       setSuccess(`Usuario ${data.user.username} registrado correctamente`);
 
-      // Opcional: guardar token si quieres usarlo aparte de la cookie
+      // Opcional (no necesario si usas cookies httpOnly)
       localStorage.setItem("token", data.token);
 
-      // Redirigir después del registro
+      // Redirección después de registro
       setTimeout(() => {
         navigate("/signin");
       }, 1200);
     } catch (err) {
+      // Manejo de errores
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("Error al registrar usuario");
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // termina carga siempre
     }
   };
 
+  // UI (JSX)
   return (
     <div
       className="container-fluid min-vh-100 d-flex align-items-center justify-content-center p-0 my-4"
