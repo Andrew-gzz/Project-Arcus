@@ -1,45 +1,51 @@
-import { useState } from "react"; // 1. Importamos useState
+import { useState, useEffect } from "react"; // Añadimos useEffect
 import { Link } from "react-router-dom";
-import AddProduct from "../../components/modal/AddingProduct"; //Este es la funcion del modal
+import AddProduct from "../../components/modal/AddingProduct";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
+import { getProducts } from "../../services/productService";
 
 export default function Admin() {
-  // 2. Definimos el estado para mostrar/ocultar el modal
   const [showModal, setShowModal] = useState(false);
 
-  // 3. Funciones para abrir, cerrar y confirmar
+  // 1. Nuevos estados para los productos, carga y errores
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-
   const handleConfirmAction = () => {
-    console.log("Acción confirmada en el modal");
-    // Aquí irá tu lógica futura para guardar el producto
     setShowModal(false);
+    // Cuando el modal agregue un producto exitosamente, deberías volver a cargar la lista:
+    // loadProducts();
   };
 
-  //LISTA DE PRODUCTOS
-  const products = [
-    {
-      name: "Nintendo Switch 2",
-      price: "$11,70",
-      img: "/src/assets/react.svg",
-      category: "Accesorios",
-      stock: 50,
-    },
-    {
-      name: "Control de Xbox",
-      price: "$11,70",
-      img: "/src/assets/react.svg",
-      category: "Controles",
-      stock: 0,
-    },
-    // Puedes repetir o agregar más objetos aquí
-  ];
+  // 2. Función para cargar los productos desde el backend
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      // Llamamos a tu servicio sin filtros para traer la página 1 por defecto
+      const data = await getProducts();
+      // Recuerda que tu backend responde con { products: [...], pagination: {...} }
+      setProducts(data.products);
+    } catch (err: any) {
+      setError("Error al cargar los productos de la base de datos");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // 3. useEffect para que la función se ejecute al entrar a la página
+  useEffect(() => {
+    loadProducts();
+  }, []);
   const breadcrumbPaths: BreadcrumbItem[] = [
     { name: "Inicio", url: "/" },
     { name: "Lista de productos" },
   ];
+
   return (
     <>
       {/*Breadcrumb */}
@@ -65,10 +71,11 @@ export default function Admin() {
           </div>
 
           {/*GRID DE PRODUCTOS */}
-          <div className="col.12">
+          <div className="col-12">
             <div className="row g-4">
-              {[...products, ...products].map((product, index) => (
-                <div className="col-6 col-lg-3" key={index}>
+              {/* 1. Quitamos el duplicado [...products, ...products] y dejamos solo products */}
+              {products.map((product, index) => (
+                <div className="col-6 col-lg-3" key={product._id || index}>
                   <div
                     className="card h-100 border border-1 rounded-4 overflow-hidden"
                     style={{ backgroundColor: "#1e1b33" }}
@@ -90,7 +97,7 @@ export default function Admin() {
                         <small>❤️</small>
                       </button>
                       <img
-                        src={product.img}
+                        src={product.image}
                         alt={product.name}
                         className="img-fluid"
                         style={{ maxHeight: "140px", objectFit: "contain" }}
@@ -106,17 +113,18 @@ export default function Admin() {
                         <div className="col-8">
                           <h6 className="fw-bold">{product.name}</h6>
                         </div>
-                        <div className="col-4">
+                        <div className="col-4 text-end">
                           <h6 className="badge bg-transparent text-wrap border border-warning text-warning rounded-pill">
-                            {product.category}
+                            {product.category[0]}
                           </h6>
                         </div>
                         <div className="col-8">
                           <p className="text-warning fw-bold">
-                            {product.price}
+                            {/* 3. Formateamos el precio numérico para mostrar el símbolo $ */}
+                            ${product.price}
                           </p>
                         </div>
-                        <div className="col-4">
+                        <div className="col-4 text-end">
                           <h6 className="badge text-bg-info text-wrap rounded-pill">
                             {product.stock > 0 ? "En stock" : "Agotado"}
                           </h6>

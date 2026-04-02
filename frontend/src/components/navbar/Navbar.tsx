@@ -176,7 +176,7 @@ export default function Navbar() {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              Categorías
+              Catálogo
             </button>
             <ul className="dropdown-menu">
               <li>

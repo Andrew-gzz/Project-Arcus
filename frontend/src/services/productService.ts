@@ -6,7 +6,7 @@ export const addProduct = async (productData: {
   name: String;
   description: String;
   price: Number;
-  category: String;
+  category: String[];
   image: String;
   stock: Number;
 }) => {
@@ -18,5 +18,30 @@ export const addProduct = async (productData: {
     return data;
   } catch (error: any) {
     throw error.message;
+  }
+};
+
+//Obtener lista de productos
+
+export const getProducts = async (
+  filters: {
+    category?: string[];
+    search?: string;
+    page?: number;
+    limit?: number;
+  } = {},
+) => {
+  try {
+    // Convertimos el objeto de filtros en una cadena de texto para la URL
+    // Ejemplo: ?category=software&page=1
+    const queryParams = new URLSearchParams(filters as any).toString();
+
+    const data = await apiClient(`/products?${queryParams}`, {
+      method: "GET",
+    });
+
+    return data; // Retorna { products: [], pagination: {} }
+  } catch (error: any) {
+    throw new Error(error.message || "Error al obtener productos");
   }
 };

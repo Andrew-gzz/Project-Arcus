@@ -8,7 +8,12 @@ export const getProducts = async (req, res) => {
     const { category, search, page = 1, limit = 20 } = req.query;
     const query = { isActive: true };
 
-    if (category) query.category = category;
+    if (category) {
+      // Si mandas una o varias, esto buscará coincidencias en el array
+      const categoryFilter = Array.isArray(category) ? category : [category];
+      query.category = { $in: categoryFilter };
+    }
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
