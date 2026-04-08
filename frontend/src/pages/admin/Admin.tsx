@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"; // Añadimos useEffect
-import { Link } from "react-router-dom";
 import AddProduct from "../../components/modal/AddingProduct";
+import AddCategory from "../../components/modal/AddingCategory";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 import { getProducts } from "../../services/productService";
 
 export default function Admin() {
   const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
 
   // 1. Nuevos estados para los productos, carga y errores
   const [products, setProducts] = useState<any[]>([]);
@@ -13,11 +14,18 @@ export default function Admin() {
   const [error, setError] = useState("");
 
   const handleOpenModal = () => setShowModal(true);
+  const handleOpenModal2 = () => setShowModal2(true);
+
   const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal2 = () => setShowModal2(false);
+
   const handleConfirmAction = () => {
     setShowModal(false);
-    // Cuando el modal agregue un producto exitosamente, deberías volver a cargar la lista:
-    // loadProducts();
+    loadProducts();
+  };
+  const handleConfirmAction2 = () => {
+    setShowModal2(false);
+    loadProducts();
   };
 
   // 2. Función para cargar los productos desde el backend
@@ -41,6 +49,7 @@ export default function Admin() {
   useEffect(() => {
     loadProducts();
   }, []);
+
   const breadcrumbPaths: BreadcrumbItem[] = [
     { name: "Inicio", url: "/" },
     { name: "Lista de productos" },
@@ -54,16 +63,23 @@ export default function Admin() {
       {/*SECCION 1 */}
       <div className="container mb-4">
         <div className="row text-light">
-          <div className="col-9">
+          <div className="col-4">
             <h1 className="text-warning">Productos</h1>
           </div>
-          <div className="col-3 text-end">
+          <div className="col-8 d-flex flex-column flex-md-row justify-content-md-end align-items-center gap-3">
             <button
               type="button"
               className="btn bg-danger text-light rounded-pill btn-lg fw-bold"
               onClick={handleOpenModal}
             >
               + Añadir producto
+            </button>
+            <button
+              type="button"
+              className="btn bg-danger text-light rounded-pill btn-lg fw-bold"
+              onClick={handleOpenModal2}
+            >
+              + Añadir categoría
             </button>
           </div>
           <div className="col-12">
@@ -73,7 +89,6 @@ export default function Admin() {
           {/*GRID DE PRODUCTOS */}
           <div className="col-12">
             <div className="row g-4">
-              {/* 1. Quitamos el duplicado [...products, ...products] y dejamos solo products */}
               {products.map((product, index) => (
                 <div className="col-6 col-lg-3" key={product._id || index}>
                   <div
@@ -117,17 +132,15 @@ export default function Admin() {
                           <h6 className="badge bg-transparent text-wrap border border-warning text-warning rounded-pill">
                             {product.category[0]}
                           </h6>
+                          <h6 className="badge text-bg-info text-wrap rounded-pill">
+                            {product.stock > 0 ? "En stock" : "Agotado"}
+                          </h6>
                         </div>
-                        <div className="col-8">
+                        <div className="col-12">
                           <p className="text-warning fw-bold">
                             {/* 3. Formateamos el precio numérico para mostrar el símbolo $ */}
                             ${product.price}
                           </p>
-                        </div>
-                        <div className="col-4 text-end">
-                          <h6 className="badge text-bg-info text-wrap rounded-pill">
-                            {product.stock > 0 ? "En stock" : "Agotado"}
-                          </h6>
                         </div>
                         <div className="text-secondary small">
                           <p> Stock: {product.stock} unidades</p>
@@ -172,6 +185,11 @@ export default function Admin() {
         show={showModal}
         onClose={handleCloseModal}
         onConfirm={handleConfirmAction}
+      />
+      <AddCategory
+        show={showModal2}
+        onClose={handleCloseModal2}
+        onConfirm={handleConfirmAction2}
       />
     </>
   );

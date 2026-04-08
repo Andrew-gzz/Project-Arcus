@@ -13,6 +13,7 @@ import wishlistRoutes from "./routes/wishlist.js";
 import orderRoutes from "./routes/orders.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
 import reportRoutes from "./routes/reports.js";
+import categoryRoutes from "./routes/category.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/categories", categoryRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Arcus API is running" });

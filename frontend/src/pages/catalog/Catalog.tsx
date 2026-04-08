@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ProductGrid3 } from "../../components/productsGrid/ProductsGrid";
 import "./FiltersSidebar.css";
 import FiltersSidebar from "../../components/utils/FilterSidebar";
@@ -18,6 +18,7 @@ export default function Catalog() {
       url: category ? `/catalog/${category}` : "/catalog",
     },
   ];
+
   return (
     <>
       {/*Breadcrumb */}
@@ -30,7 +31,7 @@ export default function Catalog() {
           </div>
           <div className="col-12 col-lg-9">
             {/* ProductGrid aquí */}
-            <ProductGrid3></ProductGrid3>
+            <ProductGrid3 categoria={categoryName} />
           </div>
         </div>
 

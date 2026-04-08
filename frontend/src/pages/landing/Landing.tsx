@@ -13,7 +13,7 @@ export default function Landing() {
       <div className="container">
         {/* CARRUSEL DE CATEGORIAS */}
         <CategoryCarousel></CategoryCarousel>
-        {/* GRID DE PRODUCTOS */}
+        {/* GRID DE PRODUCTOS (En realidad es el grid de catálogo)*/}
         <ProductGrid></ProductGrid>
         {/* BANNER DE MARCAS */}
         <MarkCard></MarkCard>

@@ -1,6 +1,5 @@
 //frontend/src/services/productService.ts
 import { apiClient } from "../api/client";
-
 // Agregar nuevo producto
 export const addProduct = async (productData: {
   name: String;
@@ -43,5 +42,16 @@ export const getProducts = async (
     return data; // Retorna { products: [], pagination: {} }
   } catch (error: any) {
     throw new Error(error.message || "Error al obtener productos");
+  }
+};
+
+export const getProductById = async (id: string) => {
+  try {
+    const data = await apiClient(`/products/${id}`, {
+      method: "GET",
+    });
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al obtener el producto");
   }
 };

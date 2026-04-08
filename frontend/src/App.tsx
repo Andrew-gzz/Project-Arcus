@@ -22,7 +22,7 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/membership" element={<Membership />} />
         <Route path="/catalog/:category?" element={<Catalog />} />
-        <Route path="/product" element={<Product />} />
+        <Route path="/product/:id" element={<Product />} />
         {/* --- RUTAS PROTEGIDAS (USUARIO LOGEADO) --- */}
         <Route element={<ProtectedRoute />}>
           <Route path="/cart" element={<Cart />} />

@@ -188,6 +188,7 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
               <option value="Xbox">Xbox</option>
               <option value="Steam">Steam</option>
               <option value="PlayStation">PlayStation</option>
+              <option value="Nuevo">Nuevo</option>
             </select>
             <small className="text-secondary">
               Usa Ctrl (o Cmd en Mac) para seleccionar varias categorías.

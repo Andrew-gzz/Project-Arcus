@@ -35,6 +35,31 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    ratings: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        value: {
+          type: Number,
+          required: true,
+          min: 0,
+          max: 5,
+        },
+      },
+    ],
+    ratingAverage: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+    ratingCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
