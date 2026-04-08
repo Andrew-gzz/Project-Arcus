@@ -202,16 +202,32 @@ export function MarkCard() {
       <div className="bg-white text-dark rounded-4 p-4 shadow-sm">
         <div className="row align-items-center">
           <div className="col text-center">
-            <img src="/src/assets/react.svg" alt="brand"></img>
+            <img
+              src="https://res.cloudinary.com/spydeals/image/upload/v1/cdn/YUg2AdUgcgPz1von14rBoS3QwHVAa3hzyucNDuIa.png"
+              className="img-fluid w-50"
+              alt="brand"
+            ></img>
           </div>
           <div className="col text-center">
-            <img src="/src/assets/react.svg" alt="brand"></img>
+            <img
+              className="img-fluid w-50"
+              src="https://geeksroom.com/wp-content/uploads/2023/04/microsoft.png"
+              alt="brand"
+            ></img>
           </div>
           <div className="col text-center">
-            <img src="/src/assets/react.svg" alt="brand"></img>
+            <img
+              src="https://1000marcas.net/wp-content/uploads/2019/12/Nintendo-Logo-PNG-1.png"
+              className="img-fluid w-50"
+              alt="brand"
+            ></img>
           </div>
           <div className="col text-center">
-            <img src="/src/assets/react.svg" alt="brand"></img>
+            <img
+              src="https://1000marcas.net/wp-content/uploads/2020/03/logo-Xbox.png"
+              className="img-fluid w-50"
+              alt="brand"
+            ></img>
           </div>
         </div>
       </div>

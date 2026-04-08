@@ -2,14 +2,17 @@
 import { useEffect, useState } from "react";
 import { Dropdown } from "bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../../services/authService"; // Importamos tu servicio
+import { logout } from "../../services/authService";
+import { getCategories } from "../../services/categoryService";
+import logo from "../../assets/Logo.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
-
-  // Estado para saber si hay un usuario y mostrar su nombre
   const [user, setUser] = useState<{ username: string } | null>(null);
+
+  // 2. Nuevo estado para las categorías
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     // Revisar si hay un usuario al cargar el componente
@@ -17,6 +20,21 @@ export default function Navbar() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    // 3. Función para obtener las categorías al cargar el Navbar
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        // Ordenamos alfabéticamente por el campo 'name'
+        const sortedCategories = data.sort((a: any, b: any) =>
+          a.name.localeCompare(b.name),
+        );
+
+        setCategories(sortedCategories);
+      } catch (error) {
+        console.error("Error al cargar las categorías:", error);
+      }
+    };
+    fetchCategories();
 
     const dropdownElementList = document.querySelectorAll(".dropdown-toggle");
     const dropdownList = [...dropdownElementList].map((el) => new Dropdown(el));
@@ -46,12 +64,7 @@ export default function Navbar() {
       >
         <div className="container">
           <Link className="navbar-brand" to="/">
-            <img
-              src="src/assets/logo.png"
-              alt="Proyect Arcus"
-              width="auto"
-              height="48"
-            />
+            <img src={logo} alt="Proyect Arcus" width="auto" height="48" />
           </Link>
 
           <button
@@ -176,34 +189,27 @@ export default function Navbar() {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              Categorías
+              Catálogo
             </button>
             <ul className="dropdown-menu">
-              <li>
-                <Link className="dropdown-item" to="/catalog/nintendo">
-                  Nintendo
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="/catalog/playstation">
-                  Playstation
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="/catalog/xbox">
-                  Xbox
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="/catalog/steam">
-                  Steam
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="/catalog/accesorios">
-                  Accesorios
-                </Link>
-              </li>
+              {/* 4. Iteración dinámica de categorías */}
+              {categories.length > 0 ? (
+                categories.map((cat, index) => (
+                  <li key={cat._id || index}>
+                    <Link
+                      className="dropdown-item"
+                      // Convertimos el nombre a minúsculas y quitamos espacios para la URL
+                      to={`/catalog/${cat.name.replace(/\s+/g, "-")}`}
+                    >
+                      {cat.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <span className="dropdown-item text-muted">Cargando...</span>
+                </li>
+              )}
             </ul>
           </div>
 

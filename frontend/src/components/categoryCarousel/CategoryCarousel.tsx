@@ -1,108 +1,121 @@
+import { useEffect, useState } from "react";
+import { getCategories } from "../../services/categoryService";
+
 export default function CategoryCarousel() {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        // Orden alfabético
+        const sortedCategories = data.sort((a: any, b: any) =>
+          a.name.localeCompare(b.name),
+        );
+        setCategories(sortedCategories);
+      } catch (error) {
+        console.error("Error al cargar las categorías:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Función para agrupar las categorías en grupos de 3 para las diapositivas
+  const chunkArray = (arr: any[], size: number) => {
+    const chunks = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+  };
+
+  const categoryChunks = chunkArray(categories, 3);
+
+  if (loading)
+    return <div className="text-center text-white">Cargando categorías...</div>;
+
   return (
     <div className="container-fluid py-5">
-      <div id="categoryCarousel" className="carousel slide">
+      <div
+        id="categoryCarousel"
+        className="carousel slide"
+        data-bs-ride="carousel"
+      >
         <div className="carousel-inner">
-          {/* GRUPO 1: Primeras 3 Secciones */}
-          <div className="carousel-item active">
-            <div className="row g-3">
-              <div className="col-4">
-                <button
-                  className="btn w-100 d-flex align-items-center justify-content-center p-4 rounded-4 shadow-sm"
-                  style={{
-                    backgroundColor: "#1e1b33",
-                  }}
-                >
-                  <img
-                    src="/src/assets/react.svg"
-                    alt="Controles"
-                    className="me-3"
-                    style={{ height: "60px", objectFit: "contain" }}
-                  />
-                  <span className="text-white fw-bold fs-5">Controles</span>
-                </button>
-              </div>
-              <div className="col-4">
-                <button
-                  className="btn w-100 d-flex align-items-center justify-content-center p-4 rounded-4 shadow-sm"
-                  style={{
-                    backgroundColor: "#1e1b33",
-                  }}
-                >
-                  <img
-                    src="/src/assets/react.svg"
-                    alt="Videojuegos"
-                    className="me-3"
-                    style={{ height: "60px", objectFit: "contain" }}
-                  />
-                  <span className="text-white fw-bold fs-5">Videojuegos</span>
-                </button>
-              </div>
-              <div className="col-4">
-                <button
-                  className="btn w-100 d-flex align-items-center justify-content-center p-4 rounded-4 shadow-sm"
-                  style={{
-                    backgroundColor: "#1e1b33",
-                  }}
-                >
-                  <img
-                    src="/src/assets/react.svg"
-                    alt="Consolas"
-                    className="me-3"
-                    style={{ height: "60px", objectFit: "contain" }}
-                  />
-                  <span className="text-white fw-bold fs-5">Consolas</span>
-                </button>
+          {categoryChunks.map((chunk, index) => (
+            <div
+              key={index}
+              className={`carousel-item ${index === 0 ? "active" : ""}`}
+            >
+              <div className="row g-3">
+                {chunk.map((cat: any) => (
+                  <div className="col-4" key={cat._id || cat.name}>
+                    <button
+                      className="btn w-100 d-flex flex-column align-items-center justify-content-center p-4 rounded-4 shadow-sm border-0"
+                      style={{
+                        backgroundColor: "#1e1b33",
+                      }}
+                    >
+                      {cat.image && (
+                        <img
+                          src={cat.image}
+                          alt={cat.name}
+                          className="mb-2"
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "contain",
+                          }}
+                        />
+                      )}
+                      <span className="text-white fw-bold fs-5">
+                        {cat.name}
+                      </span>
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* GRUPO 2: Siguientes 3 Secciones (Ejemplo) */}
-          <div className="carousel-item">
-            <div className="row g-3 px-5 mx-2">
-              <div className="col-4">
-                <button
-                  className="btn w-100 d-flex align-items-center justify-content-center p-4 rounded-4 shadow-sm"
-                  style={{ backgroundColor: "#1e1b33" }}
-                >
-                  <span className="text-white fw-bold fs-5">Más Items...</span>
-                </button>
-              </div>
-              {/* Repetir estructura de columnas según necesites */}
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Controles de Navegación Personalizados con Clases de Bootstrap */}
-        <button
-          className="carousel-control-prev opacity-100"
-          type="button"
-          data-bs-target="#categoryCarousel"
-          data-bs-slide="prev"
-          style={{ width: "5%" }}
-        >
-          <div
-            className="bg-warning rounded-circle d-flex align-items-center justify-content-center shadow"
-            style={{ width: "40px", height: "40px" }}
-          >
-            <span className="text-dark fw-bold">←</span>
-          </div>
-        </button>
+        {/* Controles */}
+        {categories.length > 3 && (
+          <>
+            <button
+              className="carousel-control-prev opacity-100"
+              type="button"
+              data-bs-target="#categoryCarousel"
+              data-bs-slide="prev"
+              style={{ width: "5%" }}
+            >
+              <div
+                className="bg-warning rounded-circle d-flex align-items-center justify-content-center shadow"
+                style={{ width: "40px", height: "40px" }}
+              >
+                <span className="text-dark fw-bold">←</span>
+              </div>
+            </button>
 
-        <button
-          className="carousel-control-next opacity-100"
-          type="button"
-          data-bs-target="#categoryCarousel"
-          data-bs-slide="next"
-          style={{ width: "5%" }}
-        >
-          <div
-            className="bg-warning rounded-circle d-flex align-items-center justify-content-center shadow"
-            style={{ width: "40px", height: "40px" }}
-          >
-            <span className="text-dark fw-bold">→</span>
-          </div>
-        </button>
+            <button
+              className="carousel-control-next opacity-100"
+              type="button"
+              data-bs-target="#categoryCarousel"
+              data-bs-slide="next"
+              style={{ width: "5%" }}
+            >
+              <div
+                className="bg-warning rounded-circle d-flex align-items-center justify-content-center shadow"
+                style={{ width: "40px", height: "40px" }}
+              >
+                <span className="text-dark fw-bold">→</span>
+              </div>
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

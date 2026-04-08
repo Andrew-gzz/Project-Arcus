@@ -1,10 +1,9 @@
-// frontend/src/components/modal/AddingProduct.tsx
 import { useState } from "react";
 import { addProduct } from "../../services/productService";
+
 interface ToastProps {
   show: boolean;
   onClose: () => void;
-  // Cambiamos onConfirm para que reciba los datos validados
   onConfirm: (productData: any) => void;
 }
 
@@ -13,14 +12,14 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
     name: "",
     description: "",
     price: "",
-    category: "",
+    category: [] as string[],
     image: "",
     stock: "",
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(""); // Mensaje de éxito
+  const [success, setSuccess] = useState("");
 
   if (!show) return null;
 
@@ -30,73 +29,85 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
     >,
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (error) setError(""); // Limpiar error al escribir
+
+    // Caso especial: select multiple para categorías
+    if (name === "category" && e.target instanceof HTMLSelectElement) {
+      const selectedCategories = Array.from(
+        e.target.selectedOptions,
+        (option) => option.value,
+      );
+
+      setForm((prev) => ({
+        ...prev,
+        category: selectedCategories,
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
+    if (error) setError("");
   };
 
-  const handleSumbit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
-    // --- LOGICA DE VALIDACIONES ---
-
-    // 1. Campos obligatorios
+    // Validaciones
     if (
-      !form.name ||
-      !form.description ||
+      !form.name.trim() ||
+      !form.description.trim() ||
       !form.price ||
-      !form.category ||
-      !form.image
+      form.category.length === 0 ||
+      !form.image.trim()
     ) {
       setError("Todos los campos marcados con * son obligatorios");
       setLoading(false);
       return;
     }
 
-    // 2. Validación de Precio (Número positivo)
-    if (parseInt(form.price) <= 0) {
+    if (Number(form.price) <= 0) {
       setError("El precio debe ser un número mayor a 0");
       setLoading(false);
       return;
     }
 
-    // 3. Validación de Stock (Entero no negativo)
-    if (parseInt(form.stock) < 0) {
+    if (form.stock && Number(form.stock) < 0) {
       setError("El stock no puede ser negativo");
       setLoading(false);
       return;
     }
 
     try {
-      // Si pasa todas las validaciones, enviamos los datos al padre (Admin.tsx)
-      setSuccess("");
-
       const productData = await addProduct({
-        name: form.name,
-        description: form.description,
+        name: form.name.trim(),
+        description: form.description.trim(),
         price: Number(form.price),
         category: form.category,
-        image: form.image,
-        stock: Number(form.stock),
+        image: form.image.trim(),
+        stock: form.stock ? Number(form.stock) : 0,
       });
 
-      setSuccess(`Producto agregado correctamente`);
+      setSuccess("Producto agregado correctamente");
 
       setTimeout(() => {
         onConfirm(productData);
       }, 1200);
-      // Limpiar formulario tras éxito
+
       setForm({
         name: "",
         description: "",
         price: "",
-        category: "",
+        category: [],
         image: "",
         stock: "",
       });
     } catch (err: any) {
-      setError(err.message || "Error al guardar el producto");
+      setError(err?.message || "Error al guardar el producto");
     } finally {
       setLoading(false);
     }
@@ -113,7 +124,7 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
       >
         <h2 className="mb-4 text-center">Agregar Producto</h2>
 
-        <form onSubmit={handleSumbit}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">Nombre del Producto *</label>
             <input
@@ -123,15 +134,18 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
               className="form-control bg-secondary text-white border-0"
             />
           </div>
+
           <div className="mb-3">
             <label className="form-label">Descripción del producto *</label>
-            <input
+            <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               className="form-control bg-secondary text-white border-0"
+              rows={3}
             />
           </div>
+
           <div className="row">
             <div className="col-6 mb-3">
               <label className="form-label">Precio *</label>
@@ -143,6 +157,7 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
                 className="form-control bg-secondary text-white border-0"
               />
             </div>
+
             <div className="col-6 mb-3">
               <label className="form-label">Stock</label>
               <input
@@ -156,19 +171,34 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Categoría *</label>
+            <label className="form-label">Categorías *</label>
             <select
               name="category"
+              multiple
               value={form.category}
               onChange={handleChange}
               className="form-select bg-secondary text-white border-0"
+              style={{ minHeight: "130px" }}
             >
-              <option value="">Selecciona...</option>
-              <option value="VideoJuegos">VideoJuegos</option>
+              <option value="Videojuegos">Videojuegos</option>
               <option value="Consolas">Consolas</option>
               <option value="Accesorios">Accesorios</option>
               <option value="Controles">Controles</option>
+              <option value="Nintendo Switch">Nintendo Switch</option>
+              <option value="Xbox">Xbox</option>
+              <option value="Steam">Steam</option>
+              <option value="PlayStation">PlayStation</option>
+              <option value="Nuevo">Nuevo</option>
             </select>
+            <small className="text-secondary">
+              Usa Ctrl (o Cmd en Mac) para seleccionar varias categorías.
+            </small>
+
+            {form.category.length > 0 && (
+              <div className="mt-2 text-info">
+                Seleccionadas: {form.category.join(", ")}
+              </div>
+            )}
           </div>
 
           <div className="mb-3">
@@ -187,6 +217,7 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
               {success}
             </div>
           )}
+
           <div className="d-flex justify-content-center gap-3 mt-4">
             <button
               type="submit"
@@ -195,6 +226,7 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
             >
               {loading ? "Guardando..." : "Sí, continuar"}
             </button>
+
             <button
               type="button"
               className="btn btn-outline-light px-4 rounded-pill"
@@ -205,6 +237,7 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
           </div>
         </form>
       </div>
+
       <div
         className="position-fixed top-0 start-0 w-100 vh-100 bg-black opacity-75"
         onClick={onClose}
