@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getProducts } from "../../services/productService";
 import { useNavigate } from "react-router-dom";
 
-//GRID DE PRODUCTOS PARA EL LANDING
+//GRID PRINCIPAL DE PRODUCTOS PARA EL LANDING
 export default function ProductGrid() {
   //Para navegar
   const navigate = useNavigate();
@@ -230,7 +230,7 @@ export default function ProductGrid() {
     </div>
   );
 }
-//GRID DE PRODUCTOS DEL ADMINISTRADOR
+//GRID2 DE PRODUCTOS DEL LANDIG (Proximamente con filtro de "Nuevo")
 export function ProductGrid2() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
@@ -597,3 +597,7 @@ export function ProductGrid3({ categoria }: { categoria: string }) {
     </div>
   );
 }
+
+//GRID DE PRODUCTOS DEL ADMINISTRADOR (FALTA MOVERLO AQUÍ O NO?)
+
+//GRID DE PRODUCTOS SIMILARES (FALTA MOVERLO AQUÍ)

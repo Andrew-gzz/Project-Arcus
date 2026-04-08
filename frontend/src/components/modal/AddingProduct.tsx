@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addProduct } from "../../services/productService";
+import { getCategories } from "../../services/categoryService";
 
 interface ToastProps {
   show: boolean;
@@ -20,9 +21,26 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
 
+  useEffect(() => {
+    // 3. Función para obtener las categorías al cargar el Navbar
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        // Ordenamos alfabéticamente por el campo 'name'
+        const sortedCategories = data.sort((a: any, b: any) =>
+          a.name.localeCompare(b.name),
+        );
+
+        setCategories(sortedCategories);
+      } catch (error) {
+        console.error("Error al cargar las categorías:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
   if (!show) return null;
-
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -180,17 +198,18 @@ export default function AddProduct({ show, onClose, onConfirm }: ToastProps) {
               className="form-select bg-secondary text-white border-0"
               style={{ minHeight: "130px" }}
             >
-              <option value="Videojuegos">Videojuegos</option>
-              <option value="Consolas">Consolas</option>
-              <option value="Accesorios">Accesorios</option>
-              <option value="Controles">Controles</option>
-              <option value="Nintendo Switch">Nintendo Switch</option>
-              <option value="Xbox">Xbox</option>
-              <option value="Steam">Steam</option>
-              <option value="PlayStation">PlayStation</option>
-              <option value="Nuevo">Nuevo</option>
+              {categories.length === 0 ? (
+                <option disabled>Cargando categorías...</option>
+              ) : (
+                categories.map((cat) => (
+                  <option key={cat._id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))
+              )}
             </select>
-            <small className="text-secondary">
+
+            <small className="text-secondary d-block mt-1">
               Usa Ctrl (o Cmd en Mac) para seleccionar varias categorías.
             </small>
 

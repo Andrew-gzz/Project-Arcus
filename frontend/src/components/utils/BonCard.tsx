@@ -4,8 +4,10 @@ import Garantia from "/src/assets/Shield.svg";
 import ExpansionIcon from "/src/assets/Chevrons.svg";
 import VarietyIcon from "/src/assets/Bookmark.svg";
 import MaintenanceIcon from "/src/assets/Settings.svg";
+import fondito from "../../assets/MembresiaFondo.png";
+import { Link } from "react-router-dom";
 
-/*Tarjeta de bonificaciones por membrecia */
+/*TARJETA DE TODAS LAS MEMBRESIAS */
 
 export default function BonCard() {
   return (
@@ -103,7 +105,7 @@ export default function BonCard() {
   );
 }
 
-/*Tarjeta de bonificaciones por compra */
+/*TARJETA CON LAS BONIFICACIONES QUE TE DA SER MIEMBRO*/
 
 export function BonCard2() {
   return (
@@ -195,7 +197,8 @@ export function BonCard2() {
     </>
   );
 }
-/*Tarjeta de marcas con las que trabajamos */
+
+/*TARJETA DE MARCAS CON LAS QUE TRABAJAMOS */
 export function MarkCard() {
   return (
     <>
@@ -228,6 +231,43 @@ export function MarkCard() {
               className="img-fluid w-50"
               alt="brand"
             ></img>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/*TARJETA DE DESCUENTOS (Deberia llevarte a la categoría de descuentos)*/
+export function OfferCard() {
+  return (
+    <>
+      {/* ANUNCIO DE DESCUENTOS */}
+      <div
+        className="py-5 my-5 rounded-4"
+        style={{
+          backgroundImage: `url(${fondito})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          position: "relative",
+        }}
+      >
+        <div className="container position-relative">
+          {/* Texto principal */}
+          <div className="py-4 d-inline-block">
+            <h1
+              className="text-white fw-bold mb-2"
+              style={{ fontSize: "3rem", whiteSpace: "nowrap" }}
+            >
+              Hasta el 30% de descuento
+            </h1>
+
+            <Link
+              className="btn btn-outline-danger rounded-pill px-4 py-2 fw-bold"
+              to="/catalog/Oferta"
+            >
+              Más información
+            </Link>
           </div>
         </div>
       </div>

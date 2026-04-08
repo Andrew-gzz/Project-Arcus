@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getProductById, getProducts } from "../../services/productService";
 import { useNavigate } from "react-router-dom";
+import { OfferCard } from "../../components/utils/BonCard";
 
 export default function Product() {
   const { id } = useParams(); // Obtenemos el ID de la URL
@@ -300,6 +301,10 @@ export default function Product() {
             ),
           )}
         </div>
+
+        {/*////////////////////////OFERTAS//////////////////////////// */}
+
+        <OfferCard></OfferCard>
       </div>
     </div>
   );

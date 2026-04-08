@@ -19,6 +19,10 @@ export default function Admin() {
   const handleCloseModal = () => setShowModal(false);
   const handleCloseModal2 = () => setShowModal2(false);
 
+  // Estados para Paginación y Filtros
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const handleConfirmAction = () => {
     setShowModal(false);
     loadProducts();
@@ -33,10 +37,16 @@ export default function Admin() {
     try {
       setLoading(true);
       setError("");
+      const filters: any = {
+        page: currentPage,
+        limit: 12,
+      };
       // Llamamos a tu servicio sin filtros para traer la página 1 por defecto
-      const data = await getProducts();
+      const data = await getProducts(filters);
       // Recuerda que tu backend responde con { products: [...], pagination: {...} }
       setProducts(data.products);
+      setCurrentPage(data.pagination.page);
+      setTotalPages(data.pagination.pages);
     } catch (err: any) {
       setError("Error al cargar los productos de la base de datos");
       console.error(err);
@@ -48,7 +58,7 @@ export default function Admin() {
   // 3. useEffect para que la función se ejecute al entrar a la página
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [currentPage]);
 
   const breadcrumbPaths: BreadcrumbItem[] = [
     { name: "Inicio", url: "/" },
@@ -178,6 +188,30 @@ export default function Admin() {
               ))}
             </div>
           </div>
+          {/* CONTROLES DE PAGINACIÓN REALES */}
+          {!loading && totalPages > 1 && (
+            <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
+              <button
+                className="btn btn-outline-info rounded-pill px-4"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+              >
+                Anterior
+              </button>
+
+              <span className="text-white fw-bold">
+                Página {currentPage} de {totalPages}
+              </span>
+
+              <button
+                className="btn btn-outline-info rounded-pill px-4"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
         </div>
       </div>
       {/*Renderizamos el modal para editar o añadir producto*/}

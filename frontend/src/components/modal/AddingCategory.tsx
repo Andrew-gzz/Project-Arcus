@@ -1,6 +1,9 @@
-//frontend/src/services/categoryService.ts
-import { useState } from "react";
-import { addCategory } from "../../services/categoryService";
+import { useEffect, useState } from "react";
+import {
+  addCategory,
+  getCategories,
+  updateCategory, // Importamos la nueva función
+} from "../../services/categoryService";
 
 interface ToastProps {
   show: boolean;
@@ -9,101 +12,156 @@ interface ToastProps {
 }
 
 export default function AddCategory({ show, onClose, onConfirm }: ToastProps) {
+  // 1. ESTADOS
   const [form, setForm] = useState({
     name: "",
     image: "",
   });
+  const [selectedCategoryId, setSelectedCategoryId] = useState(""); // Rastrear ID para editar
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
+
+  // 2. EFECTOS (Regla de Hooks: siempre arriba)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        const sortedCategories = data.sort((a: any, b: any) =>
+          a.name.localeCompare(b.name),
+        );
+        setCategories(sortedCategories);
+      } catch (error) {
+        console.error("Error al cargar las categorías:", error);
+      }
+    };
+    if (show) fetchCategories();
+  }, [show]);
+
+  // Si se cierra el modal, reseteamos el estado de edición
+  useEffect(() => {
+    if (!show) {
+      setForm({ name: "", image: "" });
+      setSelectedCategoryId("");
+      setError("");
+      setSuccess("");
+    }
+  }, [show]);
 
   if (!show) return null;
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
-    const { name, value } = e.target;
+  // 3. MANEJADORES
 
-    // Caso especial: select multiple para categorías
-    if (name === "category" && e.target instanceof HTMLSelectElement) {
-      const selectedCategories = Array.from(
-        e.target.selectedOptions,
-        (option) => option.value,
-      );
+  // Maneja la selección del ComboBox
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    setSelectedCategoryId(id);
 
-      setForm((prev) => ({
-        ...prev,
-        category: selectedCategories,
-      }));
+    if (id) {
+      // Buscamos la categoría en nuestra lista local
+      const categoryToEdit = categories.find((cat) => cat._id === id);
+      if (categoryToEdit) {
+        setForm({
+          name: categoryToEdit.name,
+          image: categoryToEdit.image || "",
+        });
+      }
     } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      // Si selecciona la opción vacía, limpiamos para crear una nueva
+      setForm({ name: "", image: "" });
     }
-
-    if (error) setError("");
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-    // Validaciones
-    if (!form.name.trim() || !form.image.trim()) {
-      setError("Todos los campos marcados con * son obligatorios");
-      setLoading(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.image) {
+      setError("Por favor rellena todos los campos.");
       return;
     }
 
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
     try {
-      const categoryData = await addCategory({
-        name: form.name.trim(),
-        image: form.image.trim(),
-      });
+      let result;
+      if (selectedCategoryId) {
+        // MODO EDICIÓN: Llamamos a updateCategory
+        result = await updateCategory(selectedCategoryId, form);
+        setSuccess("¡Categoría actualizada correctamente!");
+      } else {
+        // MODO CREACIÓN: Llamamos a addCategory
+        result = await addCategory(form);
+        setSuccess("¡Categoría creada correctamente!");
+      }
 
-      setSuccess("Categoría agregada correctamente");
-
+      // Esperar un momento para que el usuario vea el mensaje de éxito
       setTimeout(() => {
-        onConfirm(categoryData);
-      }, 1200);
-
-      setForm({
-        name: "",
-        image: "",
-      });
+        onConfirm(result);
+        onClose();
+      }, 1500);
     } catch (err: any) {
-      setError(err?.message || "Error al guardar la categoría");
+      setError(err.message || "Error al procesar la categoría");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div
-      className="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center"
-      style={{ zIndex: 2500 }}
+      className="position-fixed top-50 start-50 translate-middle"
+      style={{ zIndex: 1050 }}
     >
       <div
-        className="bg-dark text-white p-4 rounded-4 shadow-lg border border-secondary"
-        style={{ width: "500px", zIndex: 2501 }}
+        className="bg-dark p-4 rounded-4 shadow-lg text-white border border-secondary"
+        style={{ width: "400px" }}
       >
-        <h2 className="mb-4 text-center">Agregar o Modificar categoría</h2>
+        <h4 className="text-center mb-4 fw-bold">
+          {selectedCategoryId ? "Editar Categoría" : "Nueva Categoría"}
+        </h4>
 
         <form onSubmit={handleSubmit}>
+          {/* COMBOBOX: Para seleccionar y editar */}
           <div className="mb-3">
-            <label className="form-label">Nombre de la categoría *</label>
+            <label className="form-label text-info">
+              ¿Quieres editar una existente?
+            </label>
+            <select
+              className="form-select bg-secondary text-white border-0"
+              value={selectedCategoryId}
+              onChange={handleSelectChange}
+            >
+              <option value="">-- Crear Nueva --</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <hr className="border-secondary" />
+
+          {/* Campo Nombre */}
+          <div className="mb-3">
+            <label className="form-label">Nombre *</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               className="form-control bg-secondary text-white border-0"
+              placeholder="Ej: RPG, Aventura..."
+              required
             />
           </div>
 
+          {/* Campo URL Imagen */}
           <div className="mb-3">
             <label className="form-label">URL de Imagen *</label>
             <input
@@ -111,23 +169,25 @@ export default function AddCategory({ show, onClose, onConfirm }: ToastProps) {
               value={form.image}
               onChange={handleChange}
               className="form-control bg-secondary text-white border-0"
+              placeholder="https://..."
+              required
             />
           </div>
 
           {error && <div className="alert alert-danger py-2">{error}</div>}
-          {success && (
-            <div className="alert alert-success py-2" role="alert">
-              {success}
-            </div>
-          )}
+          {success && <div className="alert alert-success py-2">{success}</div>}
 
           <div className="d-flex justify-content-center gap-3 mt-4">
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-info px-4 rounded-pill fw-bold"
+              className={`btn ${selectedCategoryId ? "btn-warning" : "btn-info"} px-4 rounded-pill fw-bold`}
             >
-              {loading ? "Guardando..." : "Sí, continuar"}
+              {loading
+                ? "Procesando..."
+                : selectedCategoryId
+                  ? "Guardar Cambios"
+                  : "Crear Categoría"}
             </button>
 
             <button
@@ -140,11 +200,6 @@ export default function AddCategory({ show, onClose, onConfirm }: ToastProps) {
           </div>
         </form>
       </div>
-
-      <div
-        className="position-fixed top-0 start-0 w-100 vh-100 bg-black opacity-75"
-        onClick={onClose}
-      />
     </div>
   );
 }
