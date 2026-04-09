@@ -1,22 +1,40 @@
-import { useState, useEffect } from "react"; // Añadimos useEffect
-import AddProduct from "../../components/modal/AddingProduct";
-import AddCategory from "../../components/modal/AddingCategory";
+import { useState, useEffect } from "react";
+import AddProduct from "../../components/modal/Product";
+import AddCategory from "../../components/modal/Category";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 import { getProducts } from "../../services/productService";
 
 export default function Admin() {
-  const [showModal, setShowModal] = useState(false);
-  const [showModal2, setShowModal2] = useState(false);
+  // MODALES
+  const [showModal, setShowModal] = useState(false); // PRODUCTOS
+  const [showModal2, setShowModal2] = useState(false); // CATEGORIAS
+  // Producto en edición
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
-  // 1. Nuevos estados para los productos, carga y errores
+  // Estados para los productos, carga y errores
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const handleOpenModal = () => setShowModal(true);
+  // ABRIR MODAL EN MODO CREAR
+  const handleOpenModal = () => {
+    setEditingProductId(null);
+    setShowModal(true);
+  };
+
+  // ABRIR MODAL EN MODO EDITAR
+  const handleEditProduct = (productId: string) => {
+    setEditingProductId(productId);
+    setShowModal(true);
+  };
+
   const handleOpenModal2 = () => setShowModal2(true);
 
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingProductId(null);
+  };
+
   const handleCloseModal2 = () => setShowModal2(false);
 
   // Estados para Paginación y Filtros
@@ -25,25 +43,27 @@ export default function Admin() {
 
   const handleConfirmAction = () => {
     setShowModal(false);
+    setEditingProductId(null);
     loadProducts();
   };
+
   const handleConfirmAction2 = () => {
     setShowModal2(false);
     loadProducts();
   };
 
-  // 2. Función para cargar los productos desde el backend
   const loadProducts = async () => {
     try {
       setLoading(true);
       setError("");
+
       const filters: any = {
         page: currentPage,
         limit: 12,
       };
-      // Llamamos a tu servicio sin filtros para traer la página 1 por defecto
+
       const data = await getProducts(filters);
-      // Recuerda que tu backend responde con { products: [...], pagination: {...} }
+
       setProducts(data.products);
       setCurrentPage(data.pagination.page);
       setTotalPages(data.pagination.pages);
@@ -55,7 +75,6 @@ export default function Admin() {
     }
   };
 
-  // 3. useEffect para que la función se ejecute al entrar a la página
   useEffect(() => {
     loadProducts();
   }, [currentPage]);
@@ -67,15 +86,14 @@ export default function Admin() {
 
   return (
     <>
-      {/*Breadcrumb */}
-      <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
+      <Breadcrumb items={breadcrumbPaths} />
 
-      {/*SECCION 1 */}
       <div className="container mb-4">
         <div className="row text-light">
           <div className="col-4">
             <h1 className="text-warning">Productos</h1>
           </div>
+
           <div className="col-8 d-flex flex-column flex-md-row justify-content-md-end align-items-center gap-3">
             <button
               type="button"
@@ -84,6 +102,7 @@ export default function Admin() {
             >
               + Añadir producto
             </button>
+
             <button
               type="button"
               className="btn bg-danger text-light rounded-pill btn-lg fw-bold"
@@ -92,11 +111,17 @@ export default function Admin() {
               + Añadir categoría
             </button>
           </div>
+
           <div className="col-12">
             <p className="fs-4">Administra tus productos publicados</p>
           </div>
 
-          {/*GRID DE PRODUCTOS */}
+          {error && (
+            <div className="col-12">
+              <div className="alert alert-danger">{error}</div>
+            </div>
+          )}
+
           <div className="col-12">
             <div className="row g-4">
               {products.map((product, index) => (
@@ -105,7 +130,6 @@ export default function Admin() {
                     className="card h-100 border border-1 rounded-4 overflow-hidden"
                     style={{ backgroundColor: "#1e1b33" }}
                   >
-                    {/* Parte Superior: Imagen y Heart */}
                     <div
                       className="position-relative p-4 d-flex justify-content-center align-items-center"
                       style={{ backgroundColor: "#25223d", height: "200px" }}
@@ -121,6 +145,7 @@ export default function Admin() {
                       >
                         <small>❤️</small>
                       </button>
+
                       <img
                         src={product.image}
                         alt={product.name}
@@ -129,7 +154,6 @@ export default function Admin() {
                       />
                     </div>
 
-                    {/* Parte Inferior: Info */}
                     <div
                       className="card-body text-white p-3"
                       style={{ backgroundColor: "#0C062E" }}
@@ -138,27 +162,32 @@ export default function Admin() {
                         <div className="col-8">
                           <h6 className="fw-bold">{product.name}</h6>
                         </div>
+
                         <div className="col-4 text-end">
                           <h6 className="badge bg-transparent text-wrap border border-warning text-warning rounded-pill">
-                            {product.category[0]}
+                            {product.category?.[0]}
                           </h6>
+
                           <h6 className="badge text-bg-info text-wrap rounded-pill">
                             {product.stock > 0 ? "En stock" : "Agotado"}
                           </h6>
                         </div>
+
                         <div className="col-12">
                           <p className="text-warning fw-bold">
-                            {/* 3. Formateamos el precio numérico para mostrar el símbolo $ */}
                             ${product.price}
                           </p>
                         </div>
+
                         <div className="text-secondary small">
-                          <p> Stock: {product.stock} unidades</p>
+                          <p>Stock: {product.stock} unidades</p>
                         </div>
+
                         <div className="col-6 text-end">
                           <button
                             type="button"
                             className="btn btn-outline-info d-inline-flex align-items-center gap-2 rounded-pill"
+                            onClick={() => handleEditProduct(product._id)}
                           >
                             Editar
                             <img
@@ -168,6 +197,7 @@ export default function Admin() {
                             />
                           </button>
                         </div>
+
                         <div className="col-6 text-start">
                           <button
                             type="button"
@@ -188,7 +218,7 @@ export default function Admin() {
               ))}
             </div>
           </div>
-          {/* CONTROLES DE PAGINACIÓN REALES */}
+
           {!loading && totalPages > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
               <button
@@ -214,12 +244,14 @@ export default function Admin() {
           )}
         </div>
       </div>
-      {/*Renderizamos el modal para editar o añadir producto*/}
+
       <AddProduct
         show={showModal}
+        productId={editingProductId}
         onClose={handleCloseModal}
         onConfirm={handleConfirmAction}
       />
+
       <AddCategory
         show={showModal2}
         onClose={handleCloseModal2}

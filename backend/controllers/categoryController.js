@@ -1,5 +1,6 @@
 // backend/controllers/categoryController.js
 import Category from "../models/Category.js";
+import Product from "../models/Product.js";
 
 // @desc    Obtener todas las categorías activas
 // @route   GET /api/categories
@@ -56,28 +57,71 @@ export const updateCategory = async (req, res) => {
     const { name, image } = req.body;
     const { id } = req.params;
 
-    // 1. Buscar la categoría
+    // 1. Buscar la categoría actual
     const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({ message: "Categoría no encontrada" });
     }
 
-    // 2. Si se intenta cambiar el nombre, verificar que no exista ya
-    if (name && name !== category.name) {
-      const categoryExists = await Category.findOne({ name });
+    const oldName = category.name;
+    const newName = typeof name === "string" ? name.trim() : oldName;
+
+    // 2. Si cambió el nombre, validar duplicados
+    if (newName !== oldName) {
+      const categoryExists = await Category.findOne({
+        name: newName,
+        _id: { $ne: id },
+      });
+
       if (categoryExists) {
         return res
           .status(400)
           .json({ message: "Ya existe otra categoría con ese nombre" });
       }
-      category.name = name;
     }
 
-    // 3. Actualizar imagen si viene en el body
-    if (image) category.image = image;
+    // 3. Actualizar la categoría
+    category.name = newName;
+
+    if (typeof image === "string") {
+      category.image = image;
+    }
 
     const updatedCategory = await category.save();
-    res.json(updatedCategory);
+
+    // 4. Si cambió el nombre, actualizar productos que la usen
+    let updatedProductsCount = 0;
+
+    if (newName !== oldName) {
+      const result = await Product.updateMany({ category: oldName }, [
+        {
+          $set: {
+            category: {
+              $map: {
+                input: "$category",
+                as: "cat",
+                in: {
+                  $cond: [{ $eq: ["$$cat", oldName] }, newName, "$$cat"],
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      updatedProductsCount = result.modifiedCount || 0;
+    }
+
+    res.json({
+      message:
+        newName !== oldName
+          ? "Categoría actualizada y propagada a los productos correctamente"
+          : "Categoría actualizada correctamente",
+      category: updatedCategory,
+      updatedProductsCount,
+      oldName,
+      newName,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

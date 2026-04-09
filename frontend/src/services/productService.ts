@@ -55,3 +55,26 @@ export const getProductById = async (id: string) => {
     throw new Error(error.message || "Error al obtener el producto");
   }
 };
+
+//Actualizar un producto ya existente
+export const updateProduct = async (
+  id: string,
+  productData: {
+    name: String;
+    description: String;
+    price: Number;
+    category: String[];
+    image: String;
+    stock: Number;
+  },
+) => {
+  try {
+    const data = await apiClient(`/products/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(productData),
+    });
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al actualizar el producto");
+  }
+};
