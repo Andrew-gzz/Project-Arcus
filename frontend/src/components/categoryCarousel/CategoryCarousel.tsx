@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCategories } from "../../services/categoryService";
+import { Link } from "react-router-dom";
 
 export default function CategoryCarousel() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -53,11 +54,12 @@ export default function CategoryCarousel() {
               <div className="row g-3">
                 {chunk.map((cat: any) => (
                   <div className="col-4" key={cat._id || cat.name}>
-                    <button
+                    <Link
                       className="btn w-100 d-flex flex-column align-items-center justify-content-center p-4 rounded-4 shadow-sm border-0"
                       style={{
                         backgroundColor: "#1e1b33",
                       }}
+                      to={`/catalog/${cat.name.replace(/\s+/g, "-")}`}
                     >
                       {cat.image && (
                         <img
@@ -74,7 +76,7 @@ export default function CategoryCarousel() {
                       <span className="text-white fw-bold fs-5">
                         {cat.name}
                       </span>
-                    </button>
+                    </Link>
                   </div>
                 ))}
               </div>

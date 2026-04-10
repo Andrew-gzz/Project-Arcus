@@ -96,3 +96,69 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Calificar un producto
+// @route   POST /api/products/:id/reviews
+// @access  Privado (Solo usuarios logeados)
+export const rateProduct = async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const productId = req.params.id;
+
+    // 1. Validar que el rating sea correcto (entre 1 y 5)
+    const numericRating = Number(rating);
+    if (!numericRating || numericRating < 1 || numericRating > 5) {
+      return res
+        .status(400)
+        .json({ message: "Por favor ingresa una calificación válida (1-5)" });
+    }
+
+    // 2. Buscar el producto
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Producto no encontrado" });
+    }
+
+    // 3. VALIDACIÓN: Revisar si el usuario ya calificó este producto
+    // req.user._id viene del middleware 'protect'
+    const existingRatingIndex = product.ratings.findIndex(
+      (r) => r.user.toString() === req.user._id.toString(),
+    );
+
+    if (existingRatingIndex !== -1) {
+      // OPCIÓN A (Recomendada): Si ya votó, actualizamos su voto
+      product.ratings[existingRatingIndex].value = numericRating;
+
+      // OPCIÓN B: Si quieres prohibir que cambien su voto, borra la línea de arriba y descomenta esta:
+      // return res.status(400).json({ message: "Ya has calificado este producto anteriormente" });
+    } else {
+      // Si no ha votado, agregamos la calificación al array
+      const newRating = {
+        user: req.user._id,
+        value: numericRating,
+      };
+      product.ratings.push(newRating);
+    }
+
+    // 4. Recalcular el promedio y la cantidad total de votos
+    product.ratingCount = product.ratings.length;
+
+    // Sumamos todos los valores y los dividimos entre la cantidad de votos
+    const totalRating = product.ratings.reduce(
+      (acc, item) => acc + item.value,
+      0,
+    );
+    product.ratingAverage = totalRating / product.ratings.length;
+
+    // 5. Guardar los cambios en la base de datos
+    await product.save();
+
+    res.status(201).json({
+      message: "Calificación procesada con éxito",
+      ratingAverage: product.ratingAverage,
+      ratingCount: product.ratingCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

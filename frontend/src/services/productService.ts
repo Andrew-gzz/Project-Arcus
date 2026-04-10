@@ -78,3 +78,25 @@ export const updateProduct = async (
     throw new Error(error.message || "Error al actualizar el producto");
   }
 };
+
+/**
+ * Envía una calificación y reseña para un producto específico
+ * @param id ID del producto
+ * @param ratingData Objeto con el valor del rating (1-5) y comentario opcional
+ */
+export const rateProduct = async (
+  id: string,
+  ratingData: { rating: number; comment?: string },
+) => {
+  try {
+    const data = await apiClient(`/products/${id}/reviews`, {
+      method: "POST",
+      body: JSON.stringify(ratingData),
+    });
+
+    return data; // Retorna el mensaje de éxito y los nuevos promedios
+  } catch (error: any) {
+    // Si el backend lanza el error "Ya has calificado este producto", llegará aquí
+    throw new Error(error.message || "Error al enviar la calificación");
+  }
+};
