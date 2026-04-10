@@ -3,6 +3,7 @@ import { ProductGrid3 } from "../../components/productsGrid/ProductsGrid";
 import "./FiltersSidebar.css";
 import FiltersSidebar from "../../components/utils/FilterSidebar";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
+import { OfferCard } from "../../components/utils/BonCard";
 
 export default function Catalog() {
   const { category } = useParams();
@@ -23,6 +24,7 @@ export default function Catalog() {
     <>
       {/*Breadcrumb */}
       <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
+
       {/*GRID DE PRODUCTOS */}
       <div className="container">
         <div className="row g-4">
@@ -33,39 +35,7 @@ export default function Catalog() {
             {/* ProductGrid aquí */}
             <ProductGrid3 categoria={categoryName} />
           </div>
-        </div>
-
-        {/*ANUNCIO */}
-        <div
-          className="py-5 rounded-4 my-5"
-          style={{
-            backgroundImage: "url('src/assets/MembresiaFondo.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            position: "relative",
-          }}
-        >
-          <div className="container position-relative">
-            {/* Texto principal */}
-            <div className="py-4" style={{ maxWidth: 520 }}>
-              <button className="btn btn-outline-light rounded-pill px-4 py-2 fw-bold">
-                Más información
-              </button>
-              <h1
-                className="text-white fw-bold mb-2"
-                style={{ fontSize: "3rem" }}
-              >
-                30% de descuento
-              </h1>
-
-              <button
-                className="btn btn-danger rounded-pill px-4 py-2 fw-bold"
-                style={{ backgroundColor: "#f02b2b", borderColor: "#f02b2b" }}
-              >
-                Comprar ahora
-              </button>
-            </div>
-          </div>
+          <OfferCard></OfferCard>
         </div>
       </div>
     </>

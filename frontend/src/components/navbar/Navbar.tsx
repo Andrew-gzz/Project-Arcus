@@ -5,14 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../../services/authService";
 import { getCategories } from "../../services/categoryService";
 import logo from "../../assets/Logo.png";
+import { getWishlist } from "../../services/wishlistService";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
   const [user, setUser] = useState<{ username: string } | null>(null);
 
-  // 2. Nuevo estado para las categorías
+  // Estado para las categorías
   const [categories, setCategories] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]); //Para contar cantidad de productos en favoritos
 
   useEffect(() => {
     // Revisar si hay un usuario al cargar el componente
@@ -20,10 +22,11 @@ export default function Navbar() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    // 3. Función para obtener las categorías al cargar el Navbar
+    // Función para obtener las categorías al cargar el Navbar
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
+
         // Ordenamos alfabéticamente por el campo 'name'
         const sortedCategories = data.sort((a: any, b: any) =>
           a.name.localeCompare(b.name),
@@ -43,6 +46,30 @@ export default function Navbar() {
     };
   }, []);
 
+  // frontend/src/components/navbar/Navbar.tsx
+
+  useEffect(() => {
+    // 1. Metemos la lógica de carga en una función reusable
+    const fetchWishlistData = async () => {
+      try {
+        const data = await getWishlist();
+        setAllProducts(data.products); // Actualiza el estado con los nuevos favoritos
+      } catch (error) {
+        console.error("Error al cargar favoritos:", error);
+      }
+    };
+
+    // 2. Ejecutamos la carga inicial
+    fetchWishlistData();
+
+    // 3. Escuchamos el evento personalizado
+    window.addEventListener("wishlistUpdated", fetchWishlistData);
+
+    // 4. Limpiamos el evento cuando el componente se desmonte
+    return () => {
+      window.removeEventListener("wishlistUpdated", fetchWishlistData);
+    };
+  }, []);
   // Función para manejar el cierre de sesión real
   const handleConfirmLogout = async () => {
     try {
@@ -160,13 +187,13 @@ export default function Navbar() {
 
               {/*FAVORITOS */}
               <li className="nav-item">
-                <Link className="nav-link position-relative" to="/">
+                <Link className="nav-link position-relative" to="/wishlist">
                   <img src="/src/assets/heart.svg"></img>
                   <span
                     className="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white fw-bold"
                     style={{ backgroundColor: "#67B3B5" }}
                   >
-                    2
+                    {allProducts.length > 0 ? allProducts.length : 0}{" "}
                   </span>
                 </Link>
               </li>
@@ -227,9 +254,9 @@ export default function Navbar() {
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="/aboutus">
                 Sobre Nosotros
-              </a>
+              </Link>
             </li>
           </ul>
 
