@@ -20,22 +20,40 @@ export const addProduct = async (productData: {
   }
 };
 
-//Obtener lista de productos
+//Obtener lista de productos con filtros
 
 export const getProducts = async (
   filters: {
-    category?: string[];
-    search?: string;
+    category?: string[]; // Múltiples categorías → ?category=RPG&category=Acción
+    search?: string; // Búsqueda por nombre o descripción
+    inStock?: boolean; // true = solo con stock, false = solo agotados
+    minRating?: number; // Rating mínimo (1-5)
+    maxRating?: number; // Rating máximo (1-5)
     page?: number;
     limit?: number;
   } = {},
 ) => {
   try {
-    // Convertimos el objeto de filtros en una cadena de texto para la URL
-    // Ejemplo: ?category=software&page=1
-    const queryParams = new URLSearchParams(filters as any).toString();
+    const params = new URLSearchParams();
 
-    const data = await apiClient(`/products?${queryParams}`, {
+    // Arrays: cada elemento se añade como parámetro separado
+    // ?category=RPG&category=Acción  (lo que espera el backend con Array.isArray)
+    if (filters.category && filters.category.length > 0) {
+      filters.category.forEach((cat) => params.append("category", cat));
+    }
+
+    // Escalares: solo se añaden si tienen valor definido
+    if (filters.search) params.set("search", filters.search);
+    if (filters.inStock !== undefined)
+      params.set("inStock", String(filters.inStock));
+    if (filters.minRating !== undefined)
+      params.set("minRating", String(filters.minRating));
+    if (filters.maxRating !== undefined)
+      params.set("maxRating", String(filters.maxRating));
+    if (filters.page) params.set("page", String(filters.page));
+    if (filters.limit) params.set("limit", String(filters.limit));
+
+    const data = await apiClient(`/products?${params.toString()}`, {
       method: "GET",
     });
 

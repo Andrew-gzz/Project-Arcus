@@ -145,7 +145,7 @@ export default function Product() {
             const filters: any = {
               page: 1,
               limit: 4,
-              category: data.category[0],
+              category: [data.category[0]],
             };
 
             const data2 = await getProducts(filters);

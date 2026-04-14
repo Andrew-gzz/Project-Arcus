@@ -5,15 +5,27 @@ import Product from "../models/Product.js";
 // @route   GET /api/products
 export const getProducts = async (req, res) => {
   try {
-    const { category, search, page = 1, limit = 20 } = req.query;
+    const {
+      category,
+      search,
+      inStock,
+      minRating,
+      maxRating,
+      page = 1,
+      limit = 20,
+    } = req.query;
+
     const query = { isActive: true };
 
+    // FILTRO POR CATEGORÍA
+    // Soporta una o varias categorías
     if (category) {
-      // Si mandas una o varias, esto buscará coincidencias en el array
       const categoryFilter = Array.isArray(category) ? category : [category];
       query.category = { $in: categoryFilter };
     }
 
+    // FILTRO POR BÚSQUEDA
+    // Busca coincidencias en nombre o descripción
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -21,19 +33,47 @@ export const getProducts = async (req, res) => {
       ];
     }
 
+    // FILTRO POR STOCK
+    // inStock=true  => stock mayor a 0
+    // inStock=false => stock igual a 0
+    if (inStock === "true") {
+      query.stock = { $gt: 0 };
+    } else if (inStock === "false") {
+      query.stock = 0;
+    }
+
+    // FILTRO POR RATING PROMEDIO
+    // Permite usar mínimo, máximo o ambos
+    if (minRating !== undefined || maxRating !== undefined) {
+      query.ratingAverage = {};
+
+      if (minRating !== undefined && !isNaN(Number(minRating))) {
+        query.ratingAverage.$gte = Number(minRating);
+      }
+
+      if (maxRating !== undefined && !isNaN(Number(maxRating))) {
+        query.ratingAverage.$lte = Number(maxRating);
+      }
+
+      // Si por alguna razón no se agregó ninguna condición válida, eliminamos el objeto vacío
+      if (Object.keys(query.ratingAverage).length === 0) {
+        delete query.ratingAverage;
+      }
+    }
+
     const products = await Product.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit));
 
     const total = await Product.countDocuments(query);
 
     res.json({
       products,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: Number(page),
+        limit: Number(limit),
         total,
-        pages: Math.ceil(total / limit),
+        pages: Math.ceil(total / Number(limit)),
       },
     });
   } catch (error) {
