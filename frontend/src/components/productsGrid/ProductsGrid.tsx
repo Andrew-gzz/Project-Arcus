@@ -695,8 +695,17 @@ export function ProductGrid2() {
   );
 }
 
-//GRID DE PRODUCTOS POR CATALOGO(O CATEGORÍA)
-export function ProductGrid3({ categoria }: { categoria: string }) {
+export function ProductGrid3({
+  categoria,
+  activeFilters = { categories: [], inStock: undefined, minRating: undefined },
+}: {
+  categoria: string;
+  activeFilters?: {
+    categories: string[];
+    inStock: boolean | undefined;
+    minRating: number | undefined;
+  };
+}) {
   const navigate = useNavigate();
 
   const [products, setProducts] = useState<any[]>([]);
@@ -759,9 +768,10 @@ export function ProductGrid3({ categoria }: { categoria: string }) {
     }
   };
 
+  // Resetear a página 1 cuando cambia la categoría URL o cualquier filtro del sidebar
   useEffect(() => {
     setCurrentPage(1);
-  }, [categoria]);
+  }, [categoria, activeFilters]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -769,17 +779,23 @@ export function ProductGrid3({ categoria }: { categoria: string }) {
         setLoading(true);
         setError("");
 
-        const filters: any = {
+        // ✅ Combinar: categoría de la URL + categorías extra del sidebar
+        const categoryFromUrl = categoria !== "General" ? [categoria] : [];
+        const categoriesFromSidebar = activeFilters.categories;
+
+        // Unión sin duplicados
+        const allCategories = [
+          ...new Set([...categoryFromUrl, ...categoriesFromSidebar]),
+        ];
+
+        const data = await getProducts({
           page: currentPage,
           limit: 12,
-        };
+          category: allCategories.length > 0 ? allCategories : undefined,
+          inStock: activeFilters.inStock,
+          minRating: activeFilters.minRating,
+        });
 
-        // Solo agregamos el filtro de categoría si NO es "General"
-        if (categoria && categoria !== "General") {
-          filters.category = [categoria];
-        }
-
-        const data = await getProducts(filters);
         setProducts(data.products);
         setCurrentPage(data.pagination.page);
         setTotalPages(data.pagination.pages);
@@ -791,7 +807,7 @@ export function ProductGrid3({ categoria }: { categoria: string }) {
     };
 
     fetchProductos();
-  }, [currentPage, categoria]);
+  }, [currentPage, categoria, activeFilters]);
 
   return (
     <div className="container-fluid" style={{ minHeight: "100vh" }}>

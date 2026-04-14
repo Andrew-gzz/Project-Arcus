@@ -76,20 +76,6 @@ export default function RatingModal({
             })}
           </div>
 
-          {/* CAJA DE COMENTARIOS (Preparada para el futuro) */}
-          <div className="mb-4">
-            <label className="form-label text-info">
-              Comentario (Opcional)
-            </label>
-            <textarea
-              className="form-control bg-secondary text-white border-0"
-              rows={3}
-              placeholder="¿Qué te pareció este producto?"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            ></textarea>
-          </div>
-
           <div className="d-flex justify-content-center gap-3">
             <button
               type="submit"
