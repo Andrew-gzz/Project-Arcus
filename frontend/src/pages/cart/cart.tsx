@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
+import { useEffect } from "react";
 
 export default function Cart() {
   // Colores personalizados solicitados
@@ -13,7 +14,6 @@ export default function Cart() {
     { name: "Inicio", url: "/" },
     { name: "Carrito de compras" },
   ];
-
   return (
     <div className="min-vh-100 text-light pb-5">
       {/* Breadcrumb*/}

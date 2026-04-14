@@ -191,7 +191,7 @@ export default function WishlistPage() {
                       <p className="text-warning fw-bold mb-1">
                         ${product.price}
                       </p>
-                      <div className="text-secondary small mb-3">
+                      <div className="text-info small mb-3">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <span key={star}>
                             {star <= Math.round(product.ratingAverage || 0)
