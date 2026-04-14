@@ -277,7 +277,7 @@ export default function ProductGrid() {
                       </p>
 
                       <div className="text-secondary small mb-3 d-flex align-items-center">
-                        <span className="me-1 text-primary fs-6">
+                        <span className="me-1 text-info fs-6">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <span key={star}>
                               {star <= Math.round(product.ratingAverage || 0)
@@ -582,7 +582,7 @@ export function ProductGrid2() {
                     {/* Estrellas y Botones */}
                     <div className="mt-auto">
                       <div className="text-secondary small mb-2">
-                        <span className="text-primary fs-6">
+                        <span className="text-info fs-6">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <span key={star}>
                               {star <=
@@ -652,7 +652,7 @@ export function ProductGrid2() {
                         ${product.price}
                       </p>
                       <div className="text-secondary small mb-3 d-flex align-items-center">
-                        <span className="me-1 text-primary fs-6">
+                        <span className="me-1 text-info fs-6">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <span key={star}>
                               {star <= Math.round(product.ratingAverage || 0)
@@ -938,7 +938,7 @@ export function ProductGrid3({
                       <p className="text-warning fw-bold mb-1">
                         ${product.price}
                       </p>
-                      <div className="text-secondary small mb-3">
+                      <div className="text-info small mb-3">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <span key={star}>
                             {star <= Math.round(product.ratingAverage || 0)
