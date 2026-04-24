@@ -7,6 +7,7 @@ import {
   getWishlist,
   removeFromWishlist,
 } from "../../services/wishlistService";
+import { addToCart } from "../../services/cartService";
 
 //GRID PRINCIPAL DE PRODUCTOS PARA EL LANDING
 export default function ProductGrid() {
@@ -24,6 +25,19 @@ export default function ProductGrid() {
   const [activeCategory, setActiveCategory] = useState<string>(""); // "" significa que muestra todos
 
   const [hoveredCard, setHoveredCard] = useState<string | number | null>(null);
+
+  // CART: Set de IDs para saber qué productos están en el carrito 
+  const handleAddToCart = async (productId: string) => {
+    try {
+      console.log("CLICK ADD TO CART");
+      await addToCart(productId, 1);
+       console.log("RESPUESTA BACKEND:", Response);
+      window.dispatchEvent(new Event("cartUpdated")); 
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   // WISHLIST: Set de IDs para saber qué productos ya están guardados
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
@@ -307,6 +321,7 @@ export default function ProductGrid() {
                         }}
                       >
                         <button
+                          onClick={() => handleAddToCart(product._id)}
                           className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
                           style={{
                             backgroundColor: "#e2f54d",
@@ -366,6 +381,15 @@ export function ProductGrid2() {
   const [error, setError] = useState("");
   // Estado para controlar el hover
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  //CART 
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1);
+      window.dispatchEvent(new Event("cartUpdated")); // opcional pero recomendado
+    } catch (error) {
+      console.error(error);
+    }
+  };
   // WISHLIST
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
   const [wishlistLoading, setWishlistLoading] = useState<Set<string>>(
@@ -449,7 +473,7 @@ export function ProductGrid2() {
 
   const mainProduct = products[0];
   const sideProducts = products.slice(1, 3);
-
+  
   // Botón de wishlist reutilizable
   const WishlistButton = ({ productId }: { productId: string }) => {
     const isFavorite = wishlistIds.has(productId);
@@ -509,6 +533,7 @@ export function ProductGrid2() {
       }}
     >
       <button
+        onClick={() => handleAddToCart(productId)}
         className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
         style={{ backgroundColor: "#e2f54d", fontSize: "0.8rem" }}
       >
@@ -716,6 +741,16 @@ export function ProductGrid3({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hoveredCard, setHoveredCard] = useState<string | number | null>(null);
+
+  //CART 
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1);
+      window.dispatchEvent(new Event("cartUpdated")); // opcional pero recomendado
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // WISHLIST
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
@@ -967,6 +1002,7 @@ export function ProductGrid3({
                         }}
                       >
                         <button
+                          onClick={() => handleAddToCart(product._id)}
                           className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
                           style={{
                             backgroundColor: "#e2f54d",

@@ -1,8 +1,30 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import {
+  getCart,
+  addToCart,
+  updateCart,
+  removeFromCart,
+  clearCart
+}  from "../../services/cartService";
 
 export default function Cart() {
+  const [cart, setCart] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const data = await getCart();
+        setCart(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCart();
+  }, []);
+  
   // Colores personalizados solicitados
   const colors = {
     headerTable: "#67B3B5",
@@ -14,6 +36,8 @@ export default function Cart() {
     { name: "Inicio", url: "/" },
     { name: "Carrito de compras" },
   ];
+
+
   return (
     <div className="min-vh-100 text-light pb-5">
       {/* Breadcrumb*/}
@@ -185,5 +209,7 @@ export default function Cart() {
         </div>
       </div>
     </div>
+    
+    
   );
 }
