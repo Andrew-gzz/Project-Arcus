@@ -24,7 +24,17 @@ export default function Cart() {
 
     fetchCart();
   }, []);
-  
+
+  const subtotal = cart?.products?.reduce(
+    (acc: number, item: any) =>
+      acc + item.productId.price * item.quantity,
+    0
+  ) || 0;
+
+  const shipping = subtotal * 0.05; // 5%
+
+  const total = subtotal + shipping;
+
   // Colores personalizados solicitados
   const colors = {
     headerTable: "#67B3B5",
@@ -36,6 +46,8 @@ export default function Cart() {
     { name: "Inicio", url: "/" },
     { name: "Carrito de compras" },
   ];
+
+  
 
 
   return (
@@ -58,110 +70,130 @@ export default function Cart() {
                     <th className="py-3"></th>
                   </tr>
                 </thead>
-                <tbody
-                  style={{ backgroundColor: colors.bgTable }}
-                  className="text-white"
-                >
-                  {/* Producto 1 */}
-                  <tr className="border-bottom border-secondary border-opacity-25">
-                    <td className="py-4 ps-4">
-                      <div className="d-flex align-items-center gap-3">
-                        <img
-                          src="/src/assets/react.svg"
-                          alt="game"
-                          className="rounded"
-                          style={{ width: "60px" }}
-                        />
-                        <div>
-                          <p className="mb-0 text-warning fw-bold">Play game</p>
-                          <small className="d-block opacity-75">
-                            Color: Green
-                          </small>
-                          <small className="opacity-75">Size: 30</small>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="text-center fw-bold">$ 11,70</td>
-                    <td className="text-center">
-                      <div
-                        className="input-group input-group-sm mx-auto"
-                        style={{ width: "100px" }}
-                      >
-                        <button className="btn btn-outline-light border-secondary opacity-50 text-dark bg-white">
-                          -
-                        </button>
-                        <input
-                          type="text"
-                          className="form-control text-center bg-white border-secondary"
-                          defaultValue="1"
-                        />
-                        <button className="btn btn-outline-light border-secondary opacity-50 text-dark bg-white">
-                          +
-                        </button>
-                      </div>
-                    </td>
-                    <td className="text-center fw-bold">$ 11,70</td>
-                    <td className="text-center pe-4">
-                      <button className="btn btn-link text-warning p-0 text-decoration-none fs-5">
-                        ⓧ
-                      </button>
-                    </td>
-                  </tr>
-                  {/* Producto 2 */}
-                  <tr>
-                    <td className="py-4 ps-4">
-                      <div className="d-flex align-items-center gap-3">
-                        <img
-                          src="src/assets/react.svg"
-                          alt="game"
-                          className="rounded"
-                          style={{ width: "60px" }}
-                        />
-                        <div>
-                          <p className="mb-0 text-warning fw-bold">Play game</p>
-                          <small className="d-block opacity-75">
-                            Color: Black
-                          </small>
-                          <small className="opacity-75">Size: 30</small>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="text-center fw-bold">$ 11,70</td>
-                    <td className="text-center">
-                      <div
-                        className="input-group input-group-sm mx-auto"
-                        style={{ width: "100px" }}
-                      >
-                        <button className="btn btn-outline-light border-secondary opacity-50 text-dark bg-white">
-                          -
-                        </button>
-                        <input
-                          type="text"
-                          className="form-control text-center bg-white border-secondary"
-                          defaultValue="1"
-                        />
-                        <button className="btn btn-outline-light border-secondary opacity-50 text-dark bg-white">
-                          +
-                        </button>
-                      </div>
-                    </td>
-                    <td className="text-center fw-bold">$ 11,70</td>
-                    <td className="text-center pe-4">
-                      <button className="btn btn-link text-warning p-0 text-decoration-none fs-5">
-                        ⓧ
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
+                  <tbody
+                    style={{ backgroundColor: colors.bgTable }}
+                    className="text-white"
+                  >
+                    {cart?.products?.length > 0 ? (
+                      cart.products.map((item: any) => (
+                        <tr
+                          key={item.productId._id}
+                          className="border-bottom border-secondary border-opacity-25"
+                        >
+                          {/* Producto */}
+                          <td className="py-4 ps-4">
+                            <div className="d-flex align-items-center gap-3">
+                              <img
+                                src={item.productId.image || "/src/assets/react.svg"}
+                                alt="game"
+                                className="rounded"
+                                style={{ width: "60px" }}
+                              />
+                              <div>
+                                <p className="mb-0 text-warning fw-bold">
+                                  {item.productId.name}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Precio */}
+                          <td className="text-center fw-bold">
+                            $ {item.productId.price}
+                          </td>
+
+                          {/* Cantidad */}
+                          <td className="text-center">
+                            <div
+                              className="input-group input-group-sm mx-auto"
+                              style={{ width: "100px" }}
+                            >
+                              <button
+                                className="btn btn-outline-light bg-white text-dark"
+                                onClick={async () => {
+                                  if (item.quantity > 1) {
+                                    await updateCart(item.productId._id, item.quantity - 1);
+                                    const updated = await getCart();
+                                    setCart(updated);
+                                  }
+                                  window.dispatchEvent(new Event("cartUpdated"));
+                                }}
+                              >
+                                -
+                              </button>
+
+                              <input
+                                type="text"
+                                className="form-control text-center bg-white"
+                                value={item.quantity}
+                                readOnly
+                              />
+
+                              <button
+                                className="btn btn-outline-light bg-white text-dark"
+                                onClick={async () => {
+                                  await updateCart(item.productId._id, item.quantity + 1);
+                                  const updated = await getCart();
+                                  setCart(updated);
+                                  window.dispatchEvent(new Event("cartUpdated"));
+                                }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Subtotal */}
+                          <td className="text-center fw-bold">
+                            $ {item.productId.price * item.quantity}
+                          </td>
+
+                          {/* Eliminar */}
+                          <td className="text-center pe-4">
+                            <button
+                              className="btn btn-link text-warning fs-5"
+                              onClick={async () => {
+                                await removeFromCart(item.productId._id);
+                                const updated = await getCart();
+                                setCart(updated);
+                                window.dispatchEvent(new Event("cartUpdated"));
+                              }}
+                            >
+                              ⓧ
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="text-center py-5">
+                          Tu carrito está vacío 🛒
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
               </table>
             </div>
 
             {/* Botones inferiores de la tabla */}
             <div className="d-flex justify-content-between mt-4">
-              <button className="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark">
-                Seguir comprando
-              </button>
-              <button className="btn btn-outline-danger rounded-pill px-4 py-2 fw-bold border-2">
+              <Link to="/"> 
+                <button className="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark">
+                  Seguir comprando
+                </button>
+              </Link>
+              <button className="btn btn-outline-danger rounded-pill px-4 py-2 fw-bold border-2"
+                onClick={async () => {
+                  try {
+                    await clearCart();
+                    const updated = await getCart();
+                    setCart(updated);
+                    window.dispatchEvent(new Event("cartUpdated"));
+                  } catch (error) {
+                    console.error("Error al vaciar carrito:", error);
+                  }
+                }}
+                >
                 Vaciar carrito
               </button>
             </div>
@@ -180,19 +212,19 @@ export default function Cart() {
               <div className="p-4 flex-grow-1">
                 <div className="d-flex justify-content-between mb-3 fs-5">
                   <span>Subtotal</span>
-                  <span className="fw-bold">$ 23,20</span>
+                  <span className="fw-bold">$ {subtotal.toFixed(2)}</span>
                 </div>
 
                 <hr className="opacity-50" />
 
                 <div className="d-flex justify-content-between mb-3 opacity-75">
                   <span>Envío</span>
-                  <span>$ 23,20</span>
+                  <span> $ {shipping.toFixed(2)}</span>
                 </div>
 
                 <div className="d-flex justify-content-between mb-4">
                   <span>Total estimado</span>
-                  <span className="fw-bold">$ 23,20</span>
+                  <span className="fw-bold">$ {total.toFixed(2)}</span>
                 </div>
 
                 <Link to="/payment">
