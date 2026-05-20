@@ -17,6 +17,7 @@ import {
   removeFromWishlist,
 } from "../../services/wishlistService";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
+import { addToCart } from "../../services/cartService";
 
 export default function Product() {
   // Obtenemos el ID del producto desde la URL
@@ -36,7 +37,18 @@ export default function Product() {
   const [error, setError] = useState("");
   const [hoveredCard, setHoveredCard] = useState<string | number | null>(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
+  // CART: Set de IDs para saber qué productos están en el carrito 
+  const handleAddToCart = async (productId: string, qty: number) => {
+    try {
+      await addToCart(productId, qty);
+
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (error) {
+      console.error(error);
+    }
+  };
   // Estado de wishlist:
   // - wishlistIds guarda los IDs de productos favoritos del usuario
   // - wishlistLoading guarda temporalmente los IDs que se están procesando
@@ -315,25 +327,29 @@ export default function Product() {
             <div className="d-flex align-items-center gap-3 mb-4">
               <span className="fw-bold">Cantidad:</span>
               <div className="input-group" style={{ width: "120px" }}>
-                <button className="btn btn-light btn-sm">-</button>
+                <button className="btn btn-light btn-sm" onClick={() => setQuantity(Math.max(1, quantity - 1))}> - </button>
                 <input
                   type="text"
                   className="form-control form-control-sm text-center fw-bold"
-                  defaultValue="1"
+                  value={quantity}
+                  readOnly
                 />
-                <button className="btn btn-light btn-sm">+</button>
+                <button className="btn btn-light btn-sm" onClick={() => setQuantity(quantity + 1)}>+</button>
               </div>
             </div>
 
             {/* BOTONES DE ACCIÓN */}
-            <div className="d-grid gap-3 d-md-flex mt-5">
+            <div onClick={() => handleAddToCart(product._id, quantity)} className="d-grid gap-3 d-md-flex mt-5">
               <button className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill">
                 Añadir al carrito
               </button>
+              
+              <Link to="/payment" className="nav-link position-relative"> 
+                <button className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill">
+                  Comprar ahora
+                </button>
+              </Link>
 
-              <button className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill">
-                Comprar ahora
-              </button>
 
               {/* BOTÓN DE FAVORITOS EN LA VISTA PRINCIPAL */}
               <button

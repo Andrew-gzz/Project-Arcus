@@ -6,6 +6,8 @@ import { logout } from "../../services/authService";
 import { getCategories } from "../../services/categoryService";
 import logo from "../../assets/Logo.png";
 import { getWishlist } from "../../services/wishlistService";
+import { getCart } from "../../services/cartService";
+import { useMemo } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -15,6 +17,9 @@ export default function Navbar() {
   // Estado para las categorías
   const [categories, setCategories] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]); //Para contar cantidad de productos en favoritos
+  const [cartItems, setCartItems] = useState<any[]>([]); // Para contar cantidad de productos en carrito
+  
+
 
   useEffect(() => {
     // Revisar si hay un usuario al cargar el componente
@@ -49,6 +54,26 @@ export default function Navbar() {
   // frontend/src/components/navbar/Navbar.tsx
 
   useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const data = await getCart();
+
+        setCartItems(data?.products ?? []);
+      } catch (error) {
+        console.error("Error al cargar carrito:", error);
+      }
+    };
+
+    fetchCartData();
+
+    window.addEventListener("cartUpdated", fetchCartData);
+
+    return () => {
+      window.removeEventListener("cartUpdated", fetchCartData);
+    };
+  }, []);
+
+  useEffect(() => {
     // 1. Metemos la lógica de carga en una función reusable
     const fetchWishlistData = async () => {
       try {
@@ -70,6 +95,14 @@ export default function Navbar() {
       window.removeEventListener("wishlistUpdated", fetchWishlistData);
     };
   }, []);
+
+  const totalCartItems = useMemo(() => {
+    return cartItems.reduce(
+      (acc, item) => acc + (item.quantity || 1),
+      0
+    );
+  }, [cartItems]);
+
   // Función para manejar el cierre de sesión real
   const handleConfirmLogout = async () => {
     try {
@@ -180,7 +213,7 @@ export default function Navbar() {
                     className="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white fw-bold"
                     style={{ backgroundColor: "#67B3B5" }}
                   >
-                    2
+                    {totalCartItems}
                   </span>
                 </Link>
               </li>
