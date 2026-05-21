@@ -7,12 +7,14 @@ import {
   logoutUser,
   getUserProfile,
 } from "../controllers/authController.js";
+import { registerValidator, loginValidator } from "../validators/authValidator.js";
+import { handleValidationErrors } from "../middleware/validate.js";
 
 const router = express.Router();
 
 // Rutas de autenticación
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+router.post("/register", registerValidator, handleValidationErrors, registerUser);
+router.post("/login", loginValidator, handleValidationErrors, loginUser);
 router.post("/logout", logoutUser);
 
 // Rutas protegidas

@@ -102,7 +102,15 @@ export const getProductById = async (req, res) => {
 // @route   POST /api/products
 export const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const { name, description, price, category, image, stock } = req.body;
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      category,
+      image: image || "",
+      stock: stock ?? 0,
+    });
     logger.info(`Producto creado: ${product.name}`);
     res.status(201).json(product);
   } catch (error) {

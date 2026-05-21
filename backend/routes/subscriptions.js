@@ -2,10 +2,12 @@ import express from 'express';
 import Subscription from '../models/Subscription.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import logger from '../utils/logger.js';
+import { createSubscriptionValidator } from '../validators/subscriptionValidator.js';
+import { handleValidationErrors } from '../middleware/validate.js';
 
 const router = express.Router();
 
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, createSubscriptionValidator, handleValidationErrors, async (req, res) => {
   try {
     const { type } = req.body;
     const validTypes = ['start', 'select', 'bonus'];
