@@ -1,25 +1,96 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../signin/SignIn.css";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
+import { getCart } from "../../services/cartService";
+import { createOrder } from "../../services/orderService";
+
+interface CartProduct {
+  _id: string;
+  name: string;
+  price: number;
+  image: string;
+}
+
+interface CartProductItem {
+  productId: CartProduct;
+  quantity: number;
+}
 
 export default function Payment() {
-  const breadcrumbPaths: BreadcrumbItem[] = [
+  const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState<CartProductItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  const breadcrumbPath: BreadcrumbItem[] = [
     { name: "Inicio", url: "/" },
     { name: "Carrito de compras", url: "/cart" },
     { name: "Pago" },
   ];
 
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const data = await getCart();
+        setCartItems(data.products || []);
+        if (!data.products || data.products.length === 0) {
+          setError("Tu carrito está vacío. Agrega productos antes de pagar.");
+        }
+      } catch {
+        setError("No se pudo cargar el carrito.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCart();
+  }, []);
+
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.productId.price * item.quantity,
+    0
+  );
+  const shipping = subtotal > 0 ? 26.30 : 0;
+  const total = subtotal + shipping;
+
+  const handlePurchase = async () => {
+    if (cartItems.length === 0) {
+      setError("No puedes realizar una compra con el carrito vacío.");
+      return;
+    }
+
+    setProcessing(true);
+    setError(null);
+
+    try {
+      await createOrder();
+      navigate("/");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Error al procesar la compra";
+      setError(message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container text-white text-center py-5">
+        <p>Cargando detalles de compra...</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/*Breadcrumb */}
-      <Breadcrumb items={breadcrumbPaths}></Breadcrumb>
+      <Breadcrumb items={breadcrumbPath}></Breadcrumb>
 
       <div className="container">
         <div className="row">
-          {/* Left Section */}
           <div className="col-12 col-lg-6 d-flex flex-column p-4 text-white justify-content-center">
             <h1 className="fw-bold mb-4">Detalles de compra</h1>
-            {/* NOMBRE */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">Nombre(s)</label>
               <input
@@ -28,7 +99,6 @@ export default function Payment() {
                 placeholder="¿Cómo te llamas?"
               />
             </div>
-            {/* APELLIDO */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">Apellido(s)</label>
               <input
@@ -37,7 +107,6 @@ export default function Payment() {
                 placeholder="Escribenos tus apellidos"
               />
             </div>
-            {/* DIRECCION */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">Dirección</label>
               <input
@@ -46,7 +115,6 @@ export default function Payment() {
                 placeholder="¿Cual es tu dirección?"
               />
             </div>
-            {/* APARTAMENTO CASA PISO */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">
                 Casa, apartamento, piso, etc. (opcional)
@@ -57,7 +125,6 @@ export default function Payment() {
                 placeholder="¿Donde vives?"
               />
             </div>
-            {/* ESTADO */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">Estado</label>
               <input
@@ -66,7 +133,6 @@ export default function Payment() {
                 placeholder="¿En qué estado vives? NO, No es estado de la materia"
               />
             </div>
-            {/* NUMERO DE TELEFONO */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">
                 Número de telefono
@@ -77,7 +143,6 @@ export default function Payment() {
                 placeholder="Si no, ¿Cómo quieres conocer a Neo?"
               />
             </div>
-            {/* CORREO */}
             <div className="mb-4">
               <label className="form-label text-white mb-1">Correo</label>
               <input
@@ -86,7 +151,6 @@ export default function Payment() {
                 placeholder="Tu correo va aquí, ¿Quieres?"
               />
             </div>
-            {/* GUARDAR INFORMACION PARA LA PROXIMA COMPRA */}
             <div className="d-flex justify-content-between align-items-center w-100 mb-5">
               <div className="form-check">
                 <input
@@ -105,66 +169,71 @@ export default function Payment() {
             </div>
           </div>
 
-          {/* Right Section: Resumen de compra */}
           <div className="col-12 col-lg-6 d-flex flex-column p-5 text-white justify-content-center">
-            {/* gy-4 añade espacio uniforme entre cada fila de la columna */}
             <div className="row row-cols-1 text-white gy-4 ps-lg-5">
               <h2 className="fs-4 fw-bold mb-2">Resumen de la orden</h2>
 
-              {/* ARTICULOS */}
-              <div className="col">
-                <div className="d-flex align-items-center justify-content-between py-2">
-                  <div className="d-flex align-items-center gap-3">
-                    <img
-                      src="/src/assets/react.svg"
-                      alt="item"
-                      style={{ width: "35px" }}
-                    />
-                    <p className="mb-0">Articulo 1</p>
-                  </div>
-                  <p className="mb-0 fw-bold">$23.20</p>
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
                 </div>
+              )}
 
-                <div className="d-flex align-items-center justify-content-between py-2">
-                  <div className="d-flex align-items-center gap-3">
-                    <img
-                      src="/src/assets/react.svg"
-                      alt="item"
-                      style={{ width: "35px" }}
-                    />
-                    <p className="mb-0">Articulo 2</p>
-                  </div>
-                  <p className="mb-0 fw-bold">$23.20</p>
-                </div>
+              <div className="col">
+                {cartItems.length === 0 ? (
+                  <p className="opacity-75">No hay artículos en el carrito.</p>
+                ) : (
+                  cartItems.map((item) => (
+                    <div
+                      key={item.productId._id}
+                      className="d-flex align-items-center justify-content-between py-2"
+                    >
+                      <div className="d-flex align-items-center gap-3">
+                        <img
+                          src={
+                            item.productId.image ||
+                            "/src/assets/react.svg"
+                          }
+                          alt={item.productId.name}
+                          style={{ width: "35px" }}
+                        />
+                        <p className="mb-0">
+                          {item.productId.name} (x{item.quantity})
+                        </p>
+                      </div>
+                      <p className="mb-0 fw-bold">
+                        ${(item.productId.price * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
 
-              {/* SUBTOTAL */}
               <div className="col">
                 <div className="d-flex justify-content-between align-items-center">
                   <p className="mb-0 opacity-75">Subtotal:</p>
-                  <p className="mb-0 fw-bold">$46.40</p>
+                  <p className="mb-0 fw-bold">${subtotal.toFixed(2)}</p>
                 </div>
                 <hr className="my-3 opacity-25" />
               </div>
 
-              {/* ENVIO */}
               <div className="col">
                 <div className="d-flex justify-content-between align-items-center">
                   <p className="mb-0 opacity-75">Envío:</p>
-                  <p className="mb-0 fw-bold">$26.30</p>
+                  <p className="mb-0 fw-bold">${shipping.toFixed(2)}</p>
                 </div>
                 <hr className="my-3 opacity-25" />
               </div>
 
-              {/* TOTAL */}
               <div className="col">
                 <div className="d-flex justify-content-between align-items-center">
                   <p className="mb-0 fs-5 fw-bold">Total:</p>
-                  <p className="mb-0 fs-4 fw-bold text-warning">$72.70</p>
+                  <p className="mb-0 fs-4 fw-bold text-warning">
+                    ${total.toFixed(2)}
+                  </p>
                 </div>
               </div>
 
-              {/* FORMA DE PAGO */}
               <div className="col pt-2">
                 <div className="d-flex flex-column gap-3">
                   <div className="d-flex justify-content-between align-items-center">
@@ -216,7 +285,6 @@ export default function Payment() {
                 </div>
               </div>
 
-              {/* CUPON DE DESCUENTO */}
               <div className="col pt-3">
                 <div className="row g-2">
                   <div className="col-8">
@@ -234,14 +302,15 @@ export default function Payment() {
                 </div>
               </div>
 
-              {/* BOTÓN FINAL */}
               <div className="col pt-4">
                 <button
                   type="button"
                   className="btn w-100 py-3 rounded-4 fw-bold text-white shadow"
                   style={{ backgroundColor: "#1B5A7D", border: "none" }}
+                  onClick={handlePurchase}
+                  disabled={processing || cartItems.length === 0}
                 >
-                  Realizar compra
+                  {processing ? "Procesando..." : "Realizar compra"}
                 </button>
               </div>
             </div>
