@@ -1,6 +1,7 @@
 import express from 'express';
 import Subscription from '../models/Subscription.js';
 import { protect, adminOnly } from '../middleware/auth.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -35,8 +36,10 @@ router.post('/', protect, async (req, res) => {
       });
     }
     
+    logger.info(`Suscripción creada/actualizada: ${type} para usuario ${req.user._id}`);
     res.status(201).json(subscription);
   } catch (error) {
+    logger.error(`Error en POST /subscriptions: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });
@@ -50,6 +53,7 @@ router.get('/my', protect, async (req, res) => {
     
     res.json(subscription || null);
   } catch (error) {
+    logger.error(`Error en GET /subscriptions/my: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });
@@ -62,6 +66,7 @@ router.get('/', protect, adminOnly, async (req, res) => {
     
     res.json(subscriptions);
   } catch (error) {
+    logger.error(`Error en GET /subscriptions: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });
@@ -80,8 +85,10 @@ router.delete('/cancel', protect, async (req, res) => {
     subscription.status = 'cancelled';
     await subscription.save();
     
+    logger.info(`Suscripción cancelada para usuario ${req.user._id}`);
     res.json({ message: 'Suscripción cancelada', subscription });
   } catch (error) {
+    logger.error(`Error en DELETE /subscriptions/cancel: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });

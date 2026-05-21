@@ -1,6 +1,7 @@
 // backend/controllers/categoryController.js
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
+import logger from "../utils/logger.js";
 
 // @desc    Obtener todas las categorías activas
 // @route   GET /api/categories
@@ -9,6 +10,7 @@ export const getCategories = async (req, res) => {
     const categories = await Category.find({ isActive: true });
     res.json(categories);
   } catch (error) {
+    logger.error(`Error en getCategories: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -25,8 +27,10 @@ export const createCategory = async (req, res) => {
     }
 
     const category = await Category.create({ name, image });
+    logger.info(`Categoría creada: ${name}`);
     res.status(201).json(category);
   } catch (error) {
+    logger.error(`Error en createCategory: ${error.message}`, { stack: error.stack });
     res.status(400).json({ message: error.message });
   }
 };
@@ -44,8 +48,10 @@ export const deleteCategory = async (req, res) => {
     category.isActive = false;
     await category.save();
 
+    logger.info(`Categoría desactivada: ${category.name}`);
     res.json({ message: "Categoría desactivada correctamente" });
   } catch (error) {
+    logger.error(`Error en deleteCategory: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -123,6 +129,7 @@ export const updateCategory = async (req, res) => {
       newName,
     });
   } catch (error) {
+    logger.error(`Error en updateCategory: ${error.message}`, { stack: error.stack });
     res.status(400).json({ message: error.message });
   }
 };
@@ -144,10 +151,10 @@ export const getCategoryById = async (req, res) => {
 
     res.json(category);
   } catch (error) {
-    // Manejo de error por ID con formato inválido
     if (error.kind === "ObjectId") {
       return res.status(404).json({ message: "ID de categoría no válido" });
     }
+    logger.error(`Error en getCategoryById: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };

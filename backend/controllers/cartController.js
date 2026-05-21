@@ -1,5 +1,6 @@
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
+import logger from "../utils/logger.js";
 
 // @desc Obtener productos del carrito del usuario
 // @route Get /api/cart
@@ -16,6 +17,7 @@ export const getCart = async (req, res) => {
 
     res.json(cart);
   } catch (error) {
+    logger.error(`Error en getCart: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -51,8 +53,10 @@ export const addToCart = async (req, res) => {
     await cart.save();
     await cart.populate("products.productId");
 
+    logger.info(`Producto agregado al carrito: ${productId}`);
     res.json(cart);
   } catch (error) {
+    logger.error(`Error en addToCart: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -92,6 +96,7 @@ export const updateCart = async (req, res) => {
 
     res.json(cart);
   } catch (error) {
+    logger.error(`Error en updateCart: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -115,6 +120,7 @@ export const deleteFromCart = async (req, res) => {
 
     res.json(cart);
   } catch (error) {
+    logger.error(`Error en deleteFromCart: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -132,6 +138,7 @@ export const cleanCart = async (req, res) => {
 
     res.json(cart);
   } catch (error) {
+    logger.error(`Error en cleanCart: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };

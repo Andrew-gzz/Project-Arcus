@@ -1,5 +1,6 @@
 //backend/controllers/productController.js
 import Product from "../models/Product.js";
+import logger from "../utils/logger.js";
 
 // @desc    Obtener todos los productos (con filtros y paginación)
 // @route   GET /api/products
@@ -77,6 +78,7 @@ export const getProducts = async (req, res) => {
       },
     });
   } catch (error) {
+    logger.error(`Error en getProducts: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -91,6 +93,7 @@ export const getProductById = async (req, res) => {
     }
     res.json(product);
   } catch (error) {
+    logger.error(`Error en getProductById: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -100,8 +103,10 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const product = await Product.create(req.body);
+    logger.info(`Producto creado: ${product.name}`);
     res.status(201).json(product);
   } catch (error) {
+    logger.error(`Error en createProduct: ${error.message}`, { stack: error.stack });
     res.status(400).json({ message: error.message });
   }
 };
@@ -119,6 +124,7 @@ export const updateProduct = async (req, res) => {
     }
     res.json(product);
   } catch (error) {
+    logger.error(`Error en updateProduct: ${error.message}`, { stack: error.stack });
     res.status(400).json({ message: error.message });
   }
 };
@@ -131,8 +137,10 @@ export const deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Producto no encontrado" });
     }
+    logger.info(`Producto eliminado: ${product.name}`);
     res.json({ message: "Producto eliminado correctamente" });
   } catch (error) {
+    logger.error(`Error en deleteProduct: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -199,6 +207,7 @@ export const rateProduct = async (req, res) => {
       ratingCount: product.ratingCount,
     });
   } catch (error) {
+    logger.error(`Error en rateProduct: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };

@@ -3,6 +3,7 @@
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
+import logger from "../utils/logger.js";
 
 //@ desc  Crear orden
 //@ route POST api/orders/
@@ -54,8 +55,10 @@ export const addOrden = async (req, res) => {
 
     await order.populate("products.productId");
 
+    logger.info(`Orden creada: ${order._id}, total: ${total}`);
     res.status(201).json(order);
   } catch (error) {
+    logger.error(`Error en addOrden: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -72,6 +75,7 @@ export const getOrder = async (req, res) => {
 
     res.json(orders);
   } catch (error) {
+    logger.error(`Error en getOrder: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -89,6 +93,7 @@ export const getAllOrders = async (req, res) => {
 
     res.json(orders);
   } catch (error) {
+    logger.error(`Error en getAllOrders: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -119,6 +124,7 @@ export const getOrderById = async (req, res) => {
 
     res.json(order);
   } catch (error) {
+    logger.error(`Error en getOrderById: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -153,6 +159,7 @@ export const updateOrder = async (req, res) => {
 
     res.json(order);
   } catch (error) {
+    logger.error(`Error en updateOrder: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };

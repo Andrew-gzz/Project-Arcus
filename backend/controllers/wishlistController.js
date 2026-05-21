@@ -1,6 +1,7 @@
 // backend/controllers/wishlistController.js
 import Wishlist from "../models/Wishlist.js";
 import Product from "../models/Product.js";
+import logger from "../utils/logger.js";
 
 // @desc    Obtener wishlist del usuario autenticado
 // @route   GET /api/wishlist
@@ -17,6 +18,7 @@ export const getWishlist = async (req, res) => {
 
     res.json(wishlist);
   } catch (error) {
+    logger.error(`Error en getWishlist: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -46,8 +48,10 @@ export const addToWishlist = async (req, res) => {
 
     await wishlist.populate("products");
 
+    logger.info(`Producto agregado a wishlist: ${productId}`);
     res.json(wishlist);
   } catch (error) {
+    logger.error(`Error en addToWishlist: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -71,6 +75,7 @@ export const removeFromWishlist = async (req, res) => {
 
     res.json(wishlist);
   } catch (error) {
+    logger.error(`Error en removeFromWishlist: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };

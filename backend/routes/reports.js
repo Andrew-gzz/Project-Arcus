@@ -3,6 +3,7 @@ import Order from '../models/Order.js';
 import Subscription from '../models/Subscription.js';
 import Product from '../models/Product.js';
 import { protect, adminOnly } from '../middleware/auth.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -32,6 +33,7 @@ router.get('/sales-by-category', protect, adminOnly, async (req, res) => {
 
     res.json(result);
   } catch (error) {
+    logger.error(`Error en GET /reports/sales-by-category: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });
@@ -72,6 +74,7 @@ router.get('/top-products', protect, adminOnly, async (req, res) => {
 
     res.json(result);
   } catch (error) {
+    logger.error(`Error en GET /reports/top-products: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });
@@ -111,6 +114,7 @@ router.get('/top-users', protect, adminOnly, async (req, res) => {
 
     res.json(result);
   } catch (error) {
+    logger.error(`Error en GET /reports/top-users: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });
@@ -139,6 +143,7 @@ router.get('/subscription-stats', protect, adminOnly, async (req, res) => {
       }
     });
   } catch (error) {
+    logger.error(`Error en GET /reports/subscription-stats: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 });

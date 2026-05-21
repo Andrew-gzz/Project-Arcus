@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Cart from "../models/Cart.js";
 import Wishlist from "../models/Wishlist.js";
+import logger from "../utils/logger.js";
 
 // Función helper (privada al controlador)
 const generateToken = (id) => {
@@ -37,6 +38,7 @@ export const registerUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    logger.info(`Nuevo usuario registrado: ${email}`);
     res.status(201).json({
       user: {
         id: user._id,
@@ -47,6 +49,7 @@ export const registerUser = async (req, res) => {
       token,
     });
   } catch (error) {
+    logger.error(`Error en registerUser: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -76,6 +79,7 @@ export const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    logger.info(`Usuario logueado: ${email}`);
     res.json({
       user: {
         id: user._id,
@@ -86,6 +90,7 @@ export const loginUser = async (req, res) => {
       token,
     });
   } catch (error) {
+    logger.error(`Error en loginUser: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
@@ -93,9 +98,10 @@ export const loginUser = async (req, res) => {
 // @desc    Cerrar sesión (limpiar cookie)
 // @route   POST /api/auth/logout
 export const logoutUser = (req, res) => {
+  logger.info("Usuario cerró sesión");
   res.cookie("token", "", {
     httpOnly: true,
-    expires: new Date(0), // Expira inmediatamente
+    expires: new Date(0),
   });
   res.json({ message: "Sesión cerrada" });
 };
