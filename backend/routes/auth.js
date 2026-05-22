@@ -17,7 +17,7 @@ const router = express.Router();
 // Rutas de autenticación
 router.post("/register", registerValidator, handleValidationErrors, registerUser);
 router.post("/login", loginValidator, handleValidationErrors, loginUser);
-router.post("/logout", logoutUser);
+router.post("/logout", protect, logoutUser);
 
 // Rutas protegidas
 router.get("/me", protect, getUserProfile);

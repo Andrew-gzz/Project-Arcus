@@ -158,7 +158,7 @@ export const deleteProduct = async (req, res) => {
 // @access  Privado (Solo usuarios logeados)
 export const rateProduct = async (req, res) => {
   try {
-    const { rating } = req.body;
+    const { rating, comment } = req.body;
     const productId = req.params.id;
 
     // 1. Validar que el rating sea correcto (entre 1 y 5)
@@ -184,6 +184,7 @@ export const rateProduct = async (req, res) => {
     if (existingRatingIndex !== -1) {
       // OPCIÓN A (Recomendada): Si ya votó, actualizamos su voto
       product.ratings[existingRatingIndex].value = numericRating;
+      product.ratings[existingRatingIndex].comment = comment || "";
 
       // OPCIÓN B: Si quieres prohibir que cambien su voto, borra la línea de arriba y descomenta esta:
       // return res.status(400).json({ message: "Ya has calificado este producto anteriormente" });
@@ -192,6 +193,7 @@ export const rateProduct = async (req, res) => {
       const newRating = {
         user: req.user._id,
         value: numericRating,
+        comment: comment || "",
       };
       product.ratings.push(newRating);
     }

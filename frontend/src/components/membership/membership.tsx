@@ -18,6 +18,8 @@ interface PlanInfo {
 
 type MembershipCardProps = PlanInfo & {
   isCurrentPlan: boolean;
+  onCancel?: () => void;
+  processing?: boolean;
 };
 
 function MembershipCard({
@@ -27,6 +29,8 @@ function MembershipCard({
   buttonColor,
   isCurrentPlan,
   planType,
+  onCancel,
+  processing,
 }: MembershipCardProps) {
   const navigate = useNavigate();
 
@@ -52,17 +56,29 @@ function MembershipCard({
         <p className="card-text fs-5 mb-3">{subtitle}</p>
 
         {isCurrentPlan ? (
-          <span
-            className="badge rounded-pill px-4 py-2"
-            style={{
-              backgroundColor: buttonColor,
-              color: "white",
-              width: 280,
-              fontSize: "1.1rem",
-            }}
-          >
-            Plan actual
-          </span>
+          <div className="d-flex align-items-center gap-3">
+            <span
+              className="badge rounded-pill px-4 py-2"
+              style={{
+                backgroundColor: buttonColor,
+                color: "white",
+                fontSize: "1.1rem",
+              }}
+            >
+              Plan actual
+            </span>
+            <button
+              className="btn btn-outline-danger btn-sm rounded-pill"
+              style={{ fontSize: "0.9rem" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel?.();
+              }}
+              disabled={processing}
+            >
+              {processing ? "Procesando..." : "Cancelar"}
+            </button>
+          </div>
         ) : (
           <button
             className="btn rounded-pill px-4 py-2"
@@ -202,19 +218,12 @@ export default function Membership() {
 
         {currentPlan && (
           <div className="text-center mt-3 mb-2">
-            <p className="text-white-50 mb-2">
+            <p className="text-white-50 mb-0">
               Tu suscripción actual:{" "}
               <span className="fw-bold text-warning">
                 {currentPlan.toUpperCase()}
               </span>
             </p>
-            <button
-              className="btn btn-outline-danger btn-sm rounded-pill"
-              onClick={handleCancel}
-              disabled={processing}
-            >
-              {processing ? "Procesando..." : "Cancelar suscripción"}
-            </button>
           </div>
         )}
       </div>
@@ -230,6 +239,8 @@ export default function Membership() {
               buttonColor={c.buttonColor}
               planType={c.planType}
               isCurrentPlan={c.planType === currentPlan}
+              onCancel={c.planType === currentPlan ? handleCancel : undefined}
+              processing={c.planType === currentPlan ? processing : undefined}
             />
           ))}
         </div>
