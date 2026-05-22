@@ -46,19 +46,22 @@ function MembershipCard({
         alt={title}
         style={{ maxHeight: 220, objectFit: "cover" }}
       />
-      <div className="card-img-overlay d-flex flex-column justify-content-center">
+      <div className="card-img-overlay d-flex flex-column justify-content-center p-3">
         <h5
           className="card-title fw-bold"
-          style={{ letterSpacing: "0.08em", fontSize: 44 }}
+          style={{
+            letterSpacing: "0.08em",
+            fontSize: "clamp(1.5rem, 8vw, 2.75rem)",
+          }}
         >
           {title}
         </h5>
-        <p className="card-text fs-5 mb-3">{subtitle}</p>
+        <p className="card-text fs-6 fs-md-5 mb-3">{subtitle}</p>
 
         {isCurrentPlan ? (
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-2 flex-wrap">
             <span
-              className="badge rounded-pill px-4 py-2"
+              className="badge rounded-pill px-3 py-2"
               style={{
                 backgroundColor: buttonColor,
                 color: "white",
@@ -85,7 +88,7 @@ function MembershipCard({
             style={{
               backgroundColor: buttonColor,
               color: "white",
-              width: 280,
+              width: "min(280px, 70%)",
             }}
             onClick={(e) => {
               e.stopPropagation();
@@ -104,7 +107,9 @@ export default function Membership() {
   const [currentPlan, setCurrentPlan] = useState<PlanType | null>(null);
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success",
+  );
 
   useEffect(() => {
     const checkSubscription = async () => {

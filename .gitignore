@@ -12,6 +12,7 @@ dist/
 dist-ssr/
 ref/
 .env
+api.http
 *.local
 
 # Editor directories and files
@@ -24,3 +25,4 @@ ref/
 *.njsproj
 *.sln
 *.sw?
+pnpm-lock.yaml

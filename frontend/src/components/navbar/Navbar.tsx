@@ -12,7 +12,9 @@ import { useMemo } from "react";
 export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
-  const [user, setUser] = useState<{ username: string; type: string } | null>(null);
+  const [user, setUser] = useState<{ username: string; type: string } | null>(
+    null,
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -93,10 +95,7 @@ export default function Navbar() {
   }, []);
 
   const totalCartItems = useMemo(() => {
-    return cartItems.reduce(
-      (acc, item) => acc + (item.quantity || 1),
-      0
-    );
+    return cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
   }, [cartItems]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -125,7 +124,7 @@ export default function Navbar() {
         className="navbar navbar-expand-md navbar-dark"
         style={{ backgroundColor: "#0C062E" }}
       >
-        <div className="container">
+        <div className="container d-flex flex-wrap align-items-center">
           <Link className="navbar-brand" to="/">
             <img src={logo} alt="Proyect Arcus" width="auto" height="48" />
           </Link>
@@ -169,7 +168,7 @@ export default function Navbar() {
               </div>
             </form>
 
-            <ul className="navbar-nav ms-auto align-items-center gap-1">
+            <ul className="navbar-nav ms-auto align-items-center gap-3 flex-row mt-3 mt-md-0">
               <li className="nav-item dropdown">
                 <button
                   className="nav-link dropdown-toggle btn btn-link"

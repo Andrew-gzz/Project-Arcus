@@ -1,6 +1,5 @@
 import { useState } from "react"; // Hook para manejar estado en React
 import { Link, useNavigate } from "react-router-dom"; // Navegación entre rutas
-import ExtLogIn from "../../components/utils/ExtLogIn"; // Componente externo (login social u otro)
 import { register } from "../../services/authService"; // Servicio que conecta con el backend
 import "../signin/SignIn.css"; // Estilos
 
@@ -226,8 +225,6 @@ function SignUpPage() {
                 {loading ? "Registrando..." : "Registrarse"}
               </button>
             </form>
-
-            <ExtLogIn />
           </div>
 
           {/* Right Section */}

@@ -1,5 +1,5 @@
 //frontend/src/api/client.ts
-const BASE_URL = "http://localhost:7000/api";
+const BASE_URL = "http://localhost:5000/api";
 
 export const apiClient = async (
   endpoint: string,

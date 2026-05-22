@@ -1,6 +1,5 @@
 //frontend/src/pages/signip/SignIn.tsx
 import { useState } from "react";
-import ExtLogIn from "../../components/utils/ExtLogIn";
 import { login } from "../../services/authService";
 import "./SignIn.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -177,8 +176,6 @@ function SignInPage() {
                 {loading ? "Iniciando la sesión..." : "Iniciar sesión"}
               </button>
             </form>
-
-            <ExtLogIn />
           </div>
 
           {/* Right Section */}
