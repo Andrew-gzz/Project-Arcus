@@ -76,6 +76,7 @@ export default function Carousel() {
                       backgroundColor: "#f02b2b",
                       borderColor: "#f02b2b",
                     }}
+                    onClick={() => navigate(`/product/${product.id}`)}
                   >
                     Comprar ahora
                   </button>

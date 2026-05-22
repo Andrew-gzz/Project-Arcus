@@ -84,9 +84,12 @@ function Footer() {
                 <span className="me-2" style={{ color: "#DFFF00" }}>
                   ●
                 </span>
-                <a href="#!" className="text-white text-decoration-none">
+                <Link
+                  to="/aboutus"
+                  className="text-white text-decoration-none"
+                >
                   Facturación
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

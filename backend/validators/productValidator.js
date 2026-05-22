@@ -55,4 +55,8 @@ export const rateProductValidator = [
   body('rating')
     .notEmpty().withMessage('El rating es requerido')
     .isInt({ min: 1, max: 5 }).withMessage('El rating debe ser un número entre 1 y 5'),
+  body('comment')
+    .optional()
+    .trim()
+    .isLength({ max: 500 }).withMessage('El comentario no puede exceder los 500 caracteres'),
 ];

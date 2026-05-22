@@ -344,11 +344,12 @@ export default function Product() {
                 Añadir al carrito
               </button>
               
-              <Link to="/payment" className="nav-link position-relative"> 
-                <button className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill">
-                  Comprar ahora
-                </button>
-              </Link>
+              <button
+                className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill"
+                onClick={() => navigate("/payment", { state: { productId: product._id, productName: product.name, productPrice: product.price, productImage: product.image, quantity } })}
+              >
+                Comprar ahora
+              </button>
 
 
               {/* BOTÓN DE FAVORITOS EN LA VISTA PRINCIPAL */}

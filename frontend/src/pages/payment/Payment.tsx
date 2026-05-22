@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../signin/SignIn.css";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
-import { getCart } from "../../services/cartService";
+import { getCart, addToCart } from "../../services/cartService";
 import { createOrder } from "../../services/orderService";
 import { createSubscription } from "../../services/subscriptionService";
 
@@ -18,18 +18,12 @@ interface CartProductItem {
   quantity: number;
 }
 
-interface MembershipState {
-  planType: string;
-  planName: string;
-  planPrice: number;
-  planImg: string;
-}
-
 export default function Payment() {
   const navigate = useNavigate();
   const location = useLocation();
-  const membershipState = location.state as MembershipState | undefined;
-  const isMembershipPurchase = !!membershipState;
+  const state = location.state as { planType?: string; planName?: string; planPrice?: number; planImg?: string; productId?: string; productName?: string; productPrice?: number; productImage?: string; quantity?: number } | undefined;
+  const isMembershipPurchase = !!state?.planType;
+  const isSingleProductPurchase = !!state?.productId && !isMembershipPurchase;
 
   const [cartItems, setCartItems] = useState<CartProductItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +34,14 @@ export default function Payment() {
     ? [
         { name: "Inicio", url: "/" },
         { name: "Membresías", url: "/membership" },
-        { name: membershipState.planName, url: `/membership/${membershipState.planType.toLowerCase()}` },
+        { name: state.planName!, url: `/membership/${state.planType!.toLowerCase()}` },
+        { name: "Pago" },
+      ]
+    : isSingleProductPurchase
+    ? [
+        { name: "Inicio", url: "/" },
+        { name: "Catálogo", url: "/catalog" },
+        { name: state.productName!, url: `/product/${state.productId}` },
         { name: "Pago" },
       ]
     : [
@@ -50,7 +51,7 @@ export default function Payment() {
       ];
 
   useEffect(() => {
-    if (isMembershipPurchase) {
+    if (isMembershipPurchase || isSingleProductPurchase) {
       setLoading(false);
       return;
     }
@@ -69,10 +70,12 @@ export default function Payment() {
       }
     };
     loadCart();
-  }, [isMembershipPurchase]);
+  }, [isMembershipPurchase, isSingleProductPurchase]);
 
   const subtotal = isMembershipPurchase
-    ? membershipState.planPrice
+    ? state.planPrice!
+    : isSingleProductPurchase
+    ? state.productPrice! * (state.quantity || 1)
     : cartItems.reduce(
         (sum, item) => sum + item.productId.price * item.quantity,
         0
@@ -81,7 +84,7 @@ export default function Payment() {
   const total = subtotal + shipping;
 
   const handlePurchase = async () => {
-    if (!isMembershipPurchase && cartItems.length === 0) {
+    if (!isMembershipPurchase && !isSingleProductPurchase && cartItems.length === 0) {
       setError("No puedes realizar una compra con el carrito vacío.");
       return;
     }
@@ -91,7 +94,10 @@ export default function Payment() {
 
     try {
       if (isMembershipPurchase) {
-        await createSubscription(membershipState.planType);
+        await createSubscription(state.planType!);
+      } else if (isSingleProductPurchase) {
+        await addToCart(state.productId!, state.quantity || 1);
+        await createOrder();
       } else {
         await createOrder();
       }
@@ -202,7 +208,7 @@ export default function Payment() {
           <div className="col-12 col-lg-6 d-flex flex-column p-5 text-white justify-content-center">
             <div className="row row-cols-1 text-white gy-4 ps-lg-5">
               <h2 className="fs-4 fw-bold mb-2">
-                {isMembershipPurchase ? "Resumen de la membresía" : "Resumen de la orden"}
+                {isMembershipPurchase ? "Resumen de la membresía" : isSingleProductPurchase ? "Resumen del producto" : "Resumen de la orden"}
               </h2>
 
               {error && (
@@ -216,16 +222,32 @@ export default function Payment() {
                   <div className="d-flex align-items-center justify-content-between py-2">
                     <div className="d-flex align-items-center gap-3">
                       <img
-                        src={membershipState.planImg}
-                        alt={membershipState.planName}
+                        src={state.planImg}
+                        alt={state.planName}
                         style={{ width: "35px" }}
                       />
                       <p className="mb-0">
-                        Membresía {membershipState.planName}
+                        Membresía {state.planName}
                       </p>
                     </div>
                     <p className="mb-0 fw-bold">
-                      ${membershipState.planPrice.toFixed(2)}/mes
+                      ${state.planPrice!.toFixed(2)}/mes
+                    </p>
+                  </div>
+                ) : isSingleProductPurchase ? (
+                  <div className="d-flex align-items-center justify-content-between py-2">
+                    <div className="d-flex align-items-center gap-3">
+                      <img
+                        src={state.productImage || "/src/assets/react.svg"}
+                        alt={state.productName}
+                        style={{ width: "35px" }}
+                      />
+                      <p className="mb-0">
+                        {state.productName} (x{state.quantity})
+                      </p>
+                    </div>
+                    <p className="mb-0 fw-bold">
+                      ${(state.productPrice! * state.quantity!).toFixed(2)}
                     </p>
                   </div>
                 ) : cartItems.length === 0 ? (
@@ -357,9 +379,9 @@ export default function Payment() {
                   className="btn w-100 py-3 rounded-4 fw-bold text-white shadow"
                   style={{ backgroundColor: "#1B5A7D", border: "none" }}
                   onClick={handlePurchase}
-                  disabled={processing || (!isMembershipPurchase && cartItems.length === 0)}
+                  disabled={processing || (!isMembershipPurchase && !isSingleProductPurchase && cartItems.length === 0)}
                 >
-                  {processing ? "Procesando..." : isMembershipPurchase ? "Pagar membresía" : "Realizar compra"}
+                  {processing ? "Procesando..." : isMembershipPurchase ? "Pagar membresía" : isSingleProductPurchase ? "Realizar compra" : "Realizar compra"}
                 </button>
               </div>
             </div>
