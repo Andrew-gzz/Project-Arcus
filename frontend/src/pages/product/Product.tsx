@@ -427,15 +427,12 @@ export default function Product() {
 
         <div className="row g-4">
           {products.map((relatedProduct) => {
-            // Estado visual individual de cada tarjeta relacionada
-            const isFavorite = wishlistIds.has(relatedProduct._id);
-            const isHovered = hoveredCard === relatedProduct._id;
-            const isProcessing = wishlistLoading.has(relatedProduct._id);
-
             return (
               <div
                 key={relatedProduct._id}
                 className="col-12 col-sm-6 col-lg-3"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`/product/${relatedProduct._id}`)}
                 onMouseEnter={() => setHoveredCard(relatedProduct._id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -445,63 +442,10 @@ export default function Product() {
                     transition: "transform 0.3s ease",
                   }}
                 >
-                  {/* IMAGEN DE TARJETA RELACIONADA */}
                   <div
                     className="position-relative d-flex justify-content-center align-items-center"
                     style={{ backgroundColor: "#2D284A", height: "200px" }}
                   >
-                    {/* BOTÓN DE FAVORITOS EN TARJETA RELACIONADA */}
-                    <button
-                      onClick={(e) =>
-                        handleWishlistToggle(e, relatedProduct._id)
-                      }
-                      disabled={isProcessing}
-                      title={
-                        isFavorite
-                          ? "Quitar de favoritos"
-                          : "Añadir a favoritos"
-                      }
-                      className="btn position-absolute top-0 end-0 m-3 rounded-circle d-flex align-items-center justify-content-center p-0"
-                      style={{
-                        backgroundColor: "transparent",
-                        width: "34px",
-                        height: "34px",
-                        border: "none",
-                        zIndex: 10,
-                        opacity: isHovered || isFavorite ? 1 : 0,
-                        transform: isHovered ? "scale(1.15)" : "scale(1)",
-                        transition:
-                          "opacity 0.3s ease, transform 0.2s ease, background-color 0.2s ease",
-                        pointerEvents:
-                          isHovered || isFavorite ? "auto" : "none",
-                        cursor: isProcessing ? "not-allowed" : "pointer",
-                      }}
-                    >
-                      {isProcessing ? (
-                        <small
-                          className="text-white fw-bold"
-                          style={{ fontSize: "10px" }}
-                        >
-                          ···
-                        </small>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="22"
-                          height="22"
-                          viewBox="0 0 16 16"
-                          fill={isFavorite ? "#F31919" : "transparent"}
-                          stroke={isFavorite ? "#F31919" : "white"}
-                          strokeWidth="1.2"
-                          style={{
-                            transition: "fill 0.2s ease, stroke 0.2s ease",
-                          }}
-                        >
-                          <path d="M8 14s-6-3.33-6-8a3.5 3.5 0 0 1 6-2.45A3.5 3.5 0 0 1 14 6c0 4.67-6 8-6 8z" />
-                        </svg>
-                      )}
-                    </button>
-
                     <img
                       src={relatedProduct.image || "/placeholder-product.png"}
                       alt={relatedProduct.name}
@@ -510,7 +454,6 @@ export default function Product() {
                     />
                   </div>
 
-                  {/* INFO DE TARJETA RELACIONADA */}
                   <div className="card-body text-white p-3 d-flex flex-column">
                     <h6 className="mb-2 fw-bold">{relatedProduct.name}</h6>
 
@@ -518,7 +461,6 @@ export default function Product() {
                       ${relatedProduct.price}
                     </p>
 
-                    {/* ESTRELLAS */}
                     <div className="text-secondary small mb-3">
                       <span className="text-primary fs-6">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -541,7 +483,6 @@ export default function Product() {
                       )}
                     </div>
 
-                    {/* BOTONES DE ACCIÓN CON HOVER */}
                     <div
                       className="d-flex gap-2 mt-auto pt-2"
                       style={{
@@ -554,6 +495,10 @@ export default function Product() {
                       }}
                     >
                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(relatedProduct._id, 1);
+                        }}
                         className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
                         style={{
                           backgroundColor: "#e2f54d",
@@ -561,16 +506,6 @@ export default function Product() {
                         }}
                       >
                         Añadir al carrito 🛒
-                      </button>
-
-                      <button
-                        className="btn btn-warning rounded-3"
-                        style={{ backgroundColor: "#e2f54d" }}
-                        onClick={() =>
-                          navigate(`/product/${relatedProduct._id}`)
-                        }
-                      >
-                        👁️
                       </button>
                     </div>
                   </div>

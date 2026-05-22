@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Layout from "./components/Layout";
 import SignInPage from "./pages/signin/SignIn";
 import Membership from "./components/membership/membership";
+import MembershipDetail from "./pages/membership/MembershipDetail";
 import SignUpPage from "./pages/signup/SignUp";
 import Landing from "./pages/landing/Landing";
 import Catalog from "./pages/catalog/Catalog";
@@ -26,6 +27,7 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/membership" element={<Membership />} />
+          <Route path="/membership/:plan" element={<MembershipDetail />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
           <Route path="/catalog/:category?" element={<Catalog />} />
           <Route path="/product/:id" element={<Product />} />
