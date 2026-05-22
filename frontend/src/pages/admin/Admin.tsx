@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AddProduct from "../../components/modal/Product";
 import AddCategory from "../../components/modal/Category";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
-import { getProducts } from "../../services/productService";
+import { getProducts, deleteProduct } from "../../services/productService";
 import {
   addToWishlist,
   getWishlist,
@@ -92,6 +92,12 @@ export default function Admin() {
   // Total de páginas devuelto por el backend
   const [totalPages, setTotalPages] = useState(1);
 
+  // Producto pendiente de eliminación
+  const [productToDelete, setProductToDelete] = useState<any>(null);
+
+  // Mensaje de éxito tras eliminar
+  const [deleteMessage, setDeleteMessage] = useState("");
+
   // ==============================
   // CALLBACKS DE CONFIRMACIÓN
   // ==============================
@@ -109,6 +115,27 @@ export default function Admin() {
   const handleConfirmAction2 = () => {
     setShowModal2(false);
     loadProducts();
+  };
+
+  // Abre el modal de confirmación para eliminar un producto
+  const handleDeleteProduct = (product: any) => {
+    setProductToDelete(product);
+  };
+
+  // Confirma la eliminación del producto
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
+
+    try {
+      await deleteProduct(productToDelete._id);
+      setDeleteMessage(`"${productToDelete.name}" eliminado correctamente.`);
+      setProductToDelete(null);
+      loadProducts();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al eliminar el producto";
+      setError(msg);
+      setProductToDelete(null);
+    }
   };
 
   // ==============================
@@ -270,6 +297,13 @@ export default function Admin() {
           {error && (
             <div className="col-12">
               <div className="alert alert-danger">{error}</div>
+            </div>
+          )}
+
+          {/* Mensaje de éxito tras eliminar */}
+          {deleteMessage && (
+            <div className="col-12">
+              <div className="alert alert-success">{deleteMessage}</div>
             </div>
           )}
 
@@ -464,6 +498,7 @@ export default function Admin() {
                             <button
                               type="button"
                               className="btn btn-outline-danger d-inline-flex align-items-center gap-2 rounded-pill"
+                              onClick={() => handleDeleteProduct(product)}
                             >
                               Eliminar
                               <img
@@ -508,6 +543,40 @@ export default function Admin() {
           )}
         </div>
       </div>
+
+      {/* Modal de confirmación de eliminación */}
+      {productToDelete && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.6)", zIndex: 2000 }}
+        >
+          <div
+            className="rounded-4 p-4"
+            style={{ backgroundColor: "#1e1b33", minWidth: "350px" }}
+          >
+            <h5 className="text-white fw-bold mb-3">Confirmar eliminación</h5>
+            <p className="text-white-50 mb-4">
+              ¿Estás seguro de que deseas eliminar{" "}
+              <strong className="text-warning">"{productToDelete.name}"</strong>?
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="d-flex gap-3 justify-content-end">
+              <button
+                className="btn btn-outline-light rounded-pill px-4"
+                onClick={() => setProductToDelete(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-danger rounded-pill px-4"
+                onClick={confirmDelete}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de producto */}
       <AddProduct
