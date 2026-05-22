@@ -19,7 +19,7 @@ const plans: Record<PlanType, PlanData> = {
     title: "START",
     subtitle: "Diseñado para empezar tu negocio",
     price: 9.99,
-    img: "src/assets/Membership1.png",
+    img: "../src/assets/sub1.png",
     buttonColor: "#47B921",
     description:
       "El plan perfecto para quienes están comenzando su aventura en el mundo de los arcades. Con acceso a herramientas básicas y soporte inicial, START te da todo lo que necesitas para dar tus primeros pasos.",
@@ -35,7 +35,7 @@ const plans: Record<PlanType, PlanData> = {
     title: "SELECT",
     subtitle: "El plan que todo Arcade necesita",
     price: 19.99,
-    img: "src/assets/Membership2.png",
+    img: "../src/assets/sub2.png",
     buttonColor: "#271DD6",
     description:
       "Nuestro plan más popular. SELECT ofrece un equilibrio perfecto entre funcionalidades avanzadas y precio accesible. Ideal para arcades en crecimiento que buscan expandir su alcance.",
@@ -53,7 +53,7 @@ const plans: Record<PlanType, PlanData> = {
     title: "BONUS",
     subtitle: "Experiencias más allá del premium",
     price: 39.99,
-    img: "src/assets/Membership3.png",
+    img: "../src/assets/sub3.png",
     buttonColor: "#F31919",
     description:
       "La experiencia definitiva para arcades profesionales. BONUS incluye todas las funcionalidades premium, acceso anticipado a todo el contenido y beneficios exclusivos que no encontrarás en ningún otro plan.",
