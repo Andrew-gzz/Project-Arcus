@@ -101,7 +101,6 @@ function MembershipCard({
 }
 
 export default function Membership() {
-  const navigate = useNavigate();
   const [currentPlan, setCurrentPlan] = useState<PlanType | null>(null);
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);

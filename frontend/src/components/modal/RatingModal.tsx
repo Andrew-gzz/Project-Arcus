@@ -51,7 +51,7 @@ export default function RatingModal({
         <form onSubmit={handleSubmit}>
           {/* SISTEMA DE ESTRELLAS INTERACTIVO */}
           <div className="d-flex justify-content-center gap-2 mb-4">
-            {[...Array(5)].map((star, index) => {
+            {[...Array(5)].map((_, index) => {
               const currentRating = index + 1;
               return (
                 <button

@@ -1,14 +1,13 @@
 // frontend/src/pages/Product.tsx
 
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getProductById,
   getProducts,
   rateProduct,
 } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
-import { useNavigate } from "react-router-dom";
 import { OfferCard } from "../../components/utils/BonCard";
 import RatingModal from "../../components/modal/RatingModal";
 import {
@@ -214,7 +213,6 @@ export default function Product() {
 
   // Estas variables ya se calculan aquí, cuando product ya existe
   const isFavorite = wishlistIds.has(product._id);
-  const isHovered = hoveredCard === product._id;
   const isProcessing = wishlistLoading.has(product._id);
 
   // Breadcrumb dinámico:

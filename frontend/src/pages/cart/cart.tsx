@@ -1,9 +1,8 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 import { useState, useEffect } from "react";
 import {
   getCart,
-  addToCart,
   updateCart,
   removeFromCart,
   clearCart
