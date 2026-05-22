@@ -6,8 +6,10 @@ import {
   loginUser,
   logoutUser,
   getUserProfile,
+  updateProfile,
+  changePassword,
 } from "../controllers/authController.js";
-import { registerValidator, loginValidator } from "../validators/authValidator.js";
+import { registerValidator, loginValidator, updateProfileValidator, changePasswordValidator } from "../validators/authValidator.js";
 import { handleValidationErrors } from "../middleware/validate.js";
 
 const router = express.Router();
@@ -19,5 +21,7 @@ router.post("/logout", logoutUser);
 
 // Rutas protegidas
 router.get("/me", protect, getUserProfile);
+router.put("/profile", protect, updateProfileValidator, handleValidationErrors, updateProfile);
+router.put("/password", protect, changePasswordValidator, handleValidationErrors, changePassword);
 
 export default router;

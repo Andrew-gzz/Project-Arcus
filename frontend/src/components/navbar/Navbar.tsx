@@ -12,31 +12,24 @@ import { useMemo } from "react";
 export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [user, setUser] = useState<{ username: string; type: string } | null>(null);
 
-  // Estado para las categorías
   const [categories, setCategories] = useState<any[]>([]);
-  const [allProducts, setAllProducts] = useState<any[]>([]); //Para contar cantidad de productos en favoritos
-  const [cartItems, setCartItems] = useState<any[]>([]); // Para contar cantidad de productos en carrito
-  
-
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // Revisar si hay un usuario al cargar el componente
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    // Función para obtener las categorías al cargar el Navbar
+
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-
-        // Ordenamos alfabéticamente por el campo 'name'
         const sortedCategories = data.sort((a: any, b: any) =>
           a.name.localeCompare(b.name),
         );
-
         setCategories(sortedCategories);
       } catch (error) {
         console.error("Error al cargar las categorías:", error);
@@ -51,13 +44,10 @@ export default function Navbar() {
     };
   }, []);
 
-  // frontend/src/components/navbar/Navbar.tsx
-
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const data = await getCart();
-
         setCartItems(data?.products ?? []);
       } catch (error) {
         console.error("Error al cargar carrito:", error);
@@ -65,7 +55,6 @@ export default function Navbar() {
     };
 
     fetchCartData();
-
     window.addEventListener("cartUpdated", fetchCartData);
 
     return () => {
@@ -74,23 +63,18 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    // 1. Metemos la lógica de carga en una función reusable
     const fetchWishlistData = async () => {
       try {
         const data = await getWishlist();
-        setAllProducts(data.products); // Actualiza el estado con los nuevos favoritos
+        setAllProducts(data.products);
       } catch (error) {
         console.error("Error al cargar favoritos:", error);
       }
     };
 
-    // 2. Ejecutamos la carga inicial
     fetchWishlistData();
-
-    // 3. Escuchamos el evento personalizado
     window.addEventListener("wishlistUpdated", fetchWishlistData);
 
-    // 4. Limpiamos el evento cuando el componente se desmonte
     return () => {
       window.removeEventListener("wishlistUpdated", fetchWishlistData);
     };
@@ -103,14 +87,13 @@ export default function Navbar() {
     );
   }, [cartItems]);
 
-  // Función para manejar el cierre de sesión real
   const handleConfirmLogout = async () => {
     try {
-      await logout(); // 1. Llama al backend para borrar la cookie
-      localStorage.removeItem("user"); // 2. Borra los datos locales
-      setUser(null); // 3. Actualiza la UI
+      await logout();
+      localStorage.removeItem("user");
+      setUser(null);
       setShowLogoutToast(false);
-      navigate("/signin"); // 4. Redirige al login
+      navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
@@ -177,32 +160,56 @@ export default function Navbar() {
                   className="dropdown-menu dropdown-menu-end"
                   aria-labelledby="profileDropdown"
                 >
-                  <li>
-                    <Link className="dropdown-item" to="/signin">
-                      Iniciar sesión
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/signup">
-                      Registrarse
-                    </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="/admin">
-                      Tus productos
-                    </a>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => setShowLogoutToast(true)}
-                    >
-                      Cerrar sesión
-                    </button>
-                  </li>
+                  {user ? (
+                    <>
+                      <li>
+                        <Link className="dropdown-item" to="/profile">
+                          Mi perfil
+                        </Link>
+                      </li>
+                      {user.type === "admin" && (
+                        <>
+                          <li>
+                            <hr className="dropdown-divider" />
+                          </li>
+                          <li>
+                            <Link className="dropdown-item" to="/admin">
+                              Tus productos
+                            </Link>
+                          </li>
+                          <li>
+                            <Link className="dropdown-item" to="/admin/users">
+                              Gestión de usuarios
+                            </Link>
+                          </li>
+                        </>
+                      )}
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => setShowLogoutToast(true)}
+                        >
+                          Cerrar sesión
+                        </button>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li>
+                        <Link className="dropdown-item" to="/signin">
+                          Iniciar sesión
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className="dropdown-item" to="/signup">
+                          Registrarse
+                        </Link>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </li>
               {/*CARRITO DE COMPRAS */}
@@ -252,13 +259,11 @@ export default function Navbar() {
               Catálogo
             </button>
             <ul className="dropdown-menu">
-              {/* 4. Iteración dinámica de categorías */}
               {categories.length > 0 ? (
                 categories.map((cat, index) => (
                   <li key={cat._id || index}>
                     <Link
                       className="dropdown-item"
-                      // Convertimos el nombre a minúsculas y quitamos espacios para la URL
                       to={`/catalog/${cat.name.replace(/\s+/g, "-")}`}
                     >
                       {cat.name}
@@ -299,7 +304,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/*Renderizar el ToastMessage*/}
       <ToastMessage
         show={showLogoutToast}
         onClose={() => setShowLogoutToast(false)}

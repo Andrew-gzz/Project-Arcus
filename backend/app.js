@@ -9,6 +9,7 @@ import requestLogger from "./middleware/logger.js";
 import logger from "./utils/logger.js";
 
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
 import productRoutes from "./routes/products.js";
 import cartRoutes from "./routes/cart.js";
 import wishlistRoutes from "./routes/wishlist.js";
@@ -33,6 +34,7 @@ app.use(cookieParser());
 app.use(requestLogger);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);

@@ -12,9 +12,11 @@ import Product from "./pages/product/Product";
 import Cart from "./pages/cart/cart";
 import Payment from "./pages/payment/Payment";
 import Admin from "./pages/admin/Admin";
+import AdminUsers from "./pages/admin/users/AdminUsers";
 import ScrollToTop from "./components/utils/ScrollToTop";
 import WishlistPage from "./pages/wishlist/Wishlist";
 import AboutUsPage from "./pages/aboutUs/AboutUs";
+import Profile from "./pages/profile/Profile";
 
 function App() {
   return (
@@ -31,16 +33,19 @@ function App() {
           <Route path="/aboutus" element={<AboutUsPage />} />
           <Route path="/catalog/:category?" element={<Catalog />} />
           <Route path="/product/:id" element={<Product />} />
+
           {/* --- RUTAS PROTEGIDAS (USUARIO LOGEADO) --- */}
           <Route element={<ProtectedRoute />}>
             <Route path="/cart" element={<Cart />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
           {/*--- RUTAS PROTEGIDAS (SOLO ADMIN) --- */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
           </Route>
         </Route>
       </Routes>
