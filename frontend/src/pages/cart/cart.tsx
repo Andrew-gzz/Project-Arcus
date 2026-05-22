@@ -30,7 +30,7 @@ export default function Cart() {
     0
   ) || 0;
 
-  const shipping = subtotal * 0.05; // 5%
+  const shipping = subtotal > 0 ? 26.30 : 0;
 
   const total = subtotal + shipping;
 
@@ -166,7 +166,7 @@ export default function Cart() {
                     ) : (
                       <tr>
                         <td colSpan={5} className="text-center py-5">
-                          Tu carrito está vacío 🛒
+                          Tu carrito está vacío
                         </td>
                       </tr>
                     )}

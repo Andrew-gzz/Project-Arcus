@@ -12,3 +12,12 @@ export const getOrderByIdValidator = [
     .notEmpty().withMessage('El ID de la orden es requerido')
     .isMongoId().withMessage('El ID de la orden no es válido'),
 ];
+
+export const buyNowValidator = [
+  body('productId')
+    .notEmpty().withMessage('El ID del producto es requerido')
+    .isMongoId().withMessage('El ID del producto no es válido'),
+  body('quantity')
+    .optional()
+    .isInt({ min: 1 }).withMessage('La cantidad debe ser al menos 1'),
+];

@@ -63,16 +63,21 @@ export default function Navbar() {
       try {
         const data = await getCart();
         setCartItems(data?.products ?? []);
-      } catch (error) {
-        console.error("Error al cargar carrito:", error);
+      } catch {
+        // Usuario no logueado o error de red
       }
     };
 
     fetchCartData();
-    window.addEventListener("cartUpdated", fetchCartData);
+
+    const handleCartUpdate = () => {
+      fetchCartData();
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
-      window.removeEventListener("cartUpdated", fetchCartData);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
 
@@ -80,17 +85,22 @@ export default function Navbar() {
     const fetchWishlistData = async () => {
       try {
         const data = await getWishlist();
-        setAllProducts(data.products);
-      } catch (error) {
-        console.error("Error al cargar favoritos:", error);
+        setAllProducts(data.products ?? []);
+      } catch {
+        // Usuario no logueado o error de red
       }
     };
 
     fetchWishlistData();
-    window.addEventListener("wishlistUpdated", fetchWishlistData);
+
+    const handleWishlistUpdate = () => {
+      fetchWishlistData();
+    };
+
+    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
 
     return () => {
-      window.removeEventListener("wishlistUpdated", fetchWishlistData);
+      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
     };
   }, []);
 

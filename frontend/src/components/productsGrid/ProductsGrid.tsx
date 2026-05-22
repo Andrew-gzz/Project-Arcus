@@ -295,7 +295,7 @@ export default function ProductGrid() {
                             fontSize: "0.8rem",
                           }}
                         >
-                          Añadir al carrito 🛒
+                          Añadir al carrito
                         </button>
                       </div>
                     </div>
@@ -495,7 +495,7 @@ export function ProductGrid2() {
         className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
         style={{ backgroundColor: "#e2f54d", fontSize: "0.8rem" }}
       >
-        Añadir al carrito 🛒
+        Añadir al carrito
       </button>
     </div>
   );

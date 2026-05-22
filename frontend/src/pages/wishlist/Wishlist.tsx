@@ -4,6 +4,7 @@ import {
   getWishlist,
   removeFromWishlist,
 } from "../../services/wishlistService";
+import { addToCart } from "../../services/cartService";
 import EmptyProductsState from "../../components/utils/EmptyProductsState";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 
@@ -53,6 +54,15 @@ export default function WishlistPage() {
   useEffect(() => {
     loadWishlist();
   }, []);
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1);
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch {
+      // Error silencioso
+    }
+  };
 
   const handleRemoveFromWishlist = async (
     e: React.MouseEvent,
@@ -224,6 +234,10 @@ export default function WishlistPage() {
                             backgroundColor: "#e2f54d",
                             fontSize: "0.8rem",
                           }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product._id);
+                          }}
                         >
                           Añadir al carrito
                         </button>
@@ -232,7 +246,7 @@ export default function WishlistPage() {
                           style={{ backgroundColor: "#e2f54d" }}
                           onClick={() => navigate(`/product/${product._id}`)}
                         >
-                          👁️
+                          Ver
                         </button>
                       </div>
                     </div>

@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../signin/SignIn.css";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
-import { getCart, addToCart } from "../../services/cartService";
-import { createOrder } from "../../services/orderService";
+import { getCart } from "../../services/cartService";
+import { createOrder, buyNow } from "../../services/orderService";
 import { createSubscription } from "../../services/subscriptionService";
 
 interface CartProduct {
@@ -96,10 +96,10 @@ export default function Payment() {
       if (isMembershipPurchase) {
         await createSubscription(state.planType!);
       } else if (isSingleProductPurchase) {
-        await addToCart(state.productId!, state.quantity || 1);
-        await createOrder();
+        await buyNow(state.productId!, state.quantity || 1);
       } else {
         await createOrder();
+        window.dispatchEvent(new Event("cartUpdated"));
       }
       navigate("/");
     } catch (err: unknown) {

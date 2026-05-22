@@ -337,8 +337,11 @@ export default function Product() {
             </div>
 
             {/* BOTONES DE ACCIÓN */}
-            <div onClick={() => handleAddToCart(product._id, quantity)} className="d-grid gap-3 d-md-flex mt-5">
-              <button className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill">
+            <div className="d-grid gap-3 d-md-flex mt-5">
+              <button
+                className="btn btn-danger py-3 px-4 flex-grow-1 rounded-pill"
+                onClick={() => handleAddToCart(product._id, quantity)}
+              >
                 Añadir al carrito
               </button>
               
@@ -415,7 +418,7 @@ export default function Product() {
 
               <div className="mb-2">
                 <strong>Compartir:</strong>
-                <i className="bi bi-link-45deg cursor-pointer">🔗</i>
+                <i className="bi bi-link-45deg cursor-pointer"></i>
               </div>
             </div>
           </div>
@@ -504,7 +507,7 @@ export default function Product() {
                           fontSize: "0.8rem",
                         }}
                       >
-                        Añadir al carrito 🛒
+                        Añadir al carrito
                       </button>
                     </div>
                   </div>

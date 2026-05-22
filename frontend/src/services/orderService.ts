@@ -6,6 +6,13 @@ export const createOrder = async () => {
   });
 };
 
+export const buyNow = async (productId: string, quantity: number) => {
+  return await apiClient("/orders/buy-now", {
+    method: "POST",
+    body: JSON.stringify({ productId, quantity }),
+  });
+};
+
 export const getMyOrders = async () => {
   return await apiClient("/orders/my-orders");
 };
