@@ -199,6 +199,11 @@ export default function Navbar() {
                               Gestión de usuarios
                             </Link>
                           </li>
+                          <li>
+                            <Link className="dropdown-item" to="/admin/reports">
+                              Reportes
+                            </Link>
+                          </li>
                         </>
                       )}
                       <li>

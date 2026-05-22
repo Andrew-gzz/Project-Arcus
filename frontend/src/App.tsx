@@ -13,6 +13,7 @@ import Cart from "./pages/cart/cart";
 import Payment from "./pages/payment/Payment";
 import Admin from "./pages/admin/Admin";
 import AdminUsers from "./pages/admin/users/AdminUsers";
+import AdminReports from "./pages/admin/reports/AdminReports";
 import ScrollToTop from "./components/utils/ScrollToTop";
 import WishlistPage from "./pages/wishlist/Wishlist";
 import AboutUsPage from "./pages/aboutUs/AboutUs";
@@ -48,6 +49,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
         </Route>
       </Routes>
