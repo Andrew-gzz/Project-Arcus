@@ -16,6 +16,7 @@ import orderRoutes from "./routes/orders.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
 import reportRoutes from "./routes/reports.js";
 import categoryRoutes from "./routes/category.js";
+import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -43,6 +44,12 @@ app.use("/api/categories", categoryRoutes);
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Arcus API is running" });
 });
+
+// 404 catch-all para rutas no encontradas
+app.use(notFoundHandler);
+
+// Manejador de errores centralizado (siempre al final)
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 
