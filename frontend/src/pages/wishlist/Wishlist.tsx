@@ -126,6 +126,7 @@ export default function WishlistPage() {
                     style={{
                       backgroundColor: "#1e1b33",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      cursor: "pointer",
                       transform:
                         hoveredCard === cardId
                           ? "translateY(-5px)"
@@ -135,6 +136,7 @@ export default function WishlistPage() {
                           ? "0 10px 20px rgba(0,0,0,0.5)"
                           : "none",
                     }}
+                    onClick={() => navigate(`/product/${product._id}`)}
                     onMouseEnter={() => setHoveredCard(cardId)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
@@ -240,13 +242,6 @@ export default function WishlistPage() {
                           }}
                         >
                           Añadir al carrito
-                        </button>
-                        <button
-                          className="btn btn-warning rounded-3"
-                          style={{ backgroundColor: "#e2f54d" }}
-                          onClick={() => navigate(`/product/${product._id}`)}
-                        >
-                          Ver
                         </button>
                       </div>
                     </div>

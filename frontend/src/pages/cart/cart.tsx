@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 import { useState, useEffect } from "react";
 import {
@@ -9,6 +9,7 @@ import {
 }  from "../../services/cartService";
 
 export default function Cart() {
+  const navigate = useNavigate();
   const [cart, setCart] = useState<any>(null);
 
   useEffect(() => {
@@ -24,11 +25,17 @@ export default function Cart() {
     fetchCart();
   }, []);
 
-  const subtotal = cart?.products?.reduce(
-    (acc: number, item: any) =>
-      acc + item.productId.price * item.quantity,
-    0
-  ) || 0;
+  const subtotal = cart?.products
+    ?.filter((item: any) => item.productId?.stock > 0)
+    .reduce(
+      (acc: number, item: any) =>
+        acc + item.productId.price * item.quantity,
+      0
+    ) || 0;
+
+  const hasAvailableProducts = cart?.products?.some(
+    (item: any) => item.productId?.stock > 0
+  ) || false;
 
   const shipping = subtotal > 0 ? 26.30 : 0;
 
@@ -89,7 +96,11 @@ export default function Cart() {
                                 style={{ width: "60px" }}
                               />
                               <div>
-                                <p className="mb-0 text-warning fw-bold">
+                                <p
+                                  className="mb-0 text-warning fw-bold"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => navigate(`/product/${item.productId._id}`)}
+                                >
                                   {item.productId.name}
                                 </p>
                               </div>
@@ -101,45 +112,49 @@ export default function Cart() {
                             $ {item.productId.price}
                           </td>
 
-                          {/* Cantidad */}
+                          {/* Cantidad + Stock */}
                           <td className="text-center">
-                            <div
-                              className="input-group input-group-sm mx-auto"
-                              style={{ width: "100px" }}
-                            >
-                              <button
-                                className="btn btn-outline-light bg-white text-dark"
-                                onClick={async () => {
-                                  if (item.quantity > 1) {
-                                    await updateCart(item.productId._id, item.quantity - 1);
+                            {item.productId.stock > 0 ? (
+                              <div
+                                className="input-group input-group-sm mx-auto"
+                                style={{ width: "100px" }}
+                              >
+                                <button
+                                  className="btn btn-outline-light bg-white text-dark"
+                                  onClick={async () => {
+                                    if (item.quantity > 1) {
+                                      await updateCart(item.productId._id, item.quantity - 1);
+                                      const updated = await getCart();
+                                      setCart(updated);
+                                    }
+                                    window.dispatchEvent(new Event("cartUpdated"));
+                                  }}
+                                >
+                                  -
+                                </button>
+
+                                <input
+                                  type="text"
+                                  className="form-control text-center bg-white"
+                                  value={item.quantity}
+                                  readOnly
+                                />
+
+                                <button
+                                  className="btn btn-outline-light bg-white text-dark"
+                                  onClick={async () => {
+                                    await updateCart(item.productId._id, item.quantity + 1);
                                     const updated = await getCart();
                                     setCart(updated);
-                                  }
-                                  window.dispatchEvent(new Event("cartUpdated"));
-                                }}
-                              >
-                                -
-                              </button>
-
-                              <input
-                                type="text"
-                                className="form-control text-center bg-white"
-                                value={item.quantity}
-                                readOnly
-                              />
-
-                              <button
-                                className="btn btn-outline-light bg-white text-dark"
-                                onClick={async () => {
-                                  await updateCart(item.productId._id, item.quantity + 1);
-                                  const updated = await getCart();
-                                  setCart(updated);
-                                  window.dispatchEvent(new Event("cartUpdated"));
-                                }}
-                              >
-                                +
-                              </button>
-                            </div>
+                                    window.dispatchEvent(new Event("cartUpdated"));
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="badge bg-danger">Sin stock</span>
+                            )}
                           </td>
 
                           {/* Subtotal */}
@@ -230,8 +245,9 @@ export default function Cart() {
                   <button
                     className="btn w-100 py-3 rounded-pill text-white fw-bold mt-3"
                     style={{ backgroundColor: colors.btnProceed }}
+                    disabled={!hasAvailableProducts}
                   >
-                    Comprar
+                    {!hasAvailableProducts ? "Productos sin stock disponibles" : "Comprar"}
                   </button>
                 </Link>
               </div>
