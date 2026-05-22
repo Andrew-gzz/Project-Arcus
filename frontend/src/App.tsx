@@ -19,6 +19,7 @@ import WishlistPage from "./pages/wishlist/Wishlist";
 import AboutUsPage from "./pages/aboutUs/AboutUs";
 import Profile from "./pages/profile/Profile";
 import MyOrders from "./pages/orders/MyOrders";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -51,6 +52,9 @@ function App() {
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
+
+          {/* Ruta catch-all para páginas no encontradas */}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </>
