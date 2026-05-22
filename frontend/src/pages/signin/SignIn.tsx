@@ -54,6 +54,7 @@ function SignInPage() {
 
       // GUARDAMOS DATOS DEL USUARIO como un string JSON
       localStorage.setItem("user", JSON.stringify(data.user));
+      window.dispatchEvent(new Event("userChanged"));
 
       // Redirección después de registro
       setTimeout(() => {

@@ -19,10 +19,19 @@ export default function Navbar() {
   const [cartItems, setCartItems] = useState<any[]>([]);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const checkUser = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkUser();
+
+    window.addEventListener("storage", checkUser);
+    window.addEventListener("userChanged", checkUser);
 
     const fetchCategories = async () => {
       try {
@@ -41,6 +50,8 @@ export default function Navbar() {
     const dropdownList = [...dropdownElementList].map((el) => new Dropdown(el));
     return () => {
       dropdownList.forEach((dropdown) => dropdown.dispose());
+      window.removeEventListener("storage", checkUser);
+      window.removeEventListener("userChanged", checkUser);
     };
   }, []);
 
@@ -92,6 +103,7 @@ export default function Navbar() {
       await logout();
       localStorage.removeItem("user");
       setUser(null);
+      window.dispatchEvent(new Event("userChanged"));
       setShowLogoutToast(false);
       navigate("/");
     } catch (error) {
@@ -165,6 +177,11 @@ export default function Navbar() {
                       <li>
                         <Link className="dropdown-item" to="/profile">
                           Mi perfil
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className="dropdown-item" to="/my-orders">
+                          Mis órdenes
                         </Link>
                       </li>
                       {user.type === "admin" && (

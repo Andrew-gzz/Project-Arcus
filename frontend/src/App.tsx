@@ -17,6 +17,7 @@ import ScrollToTop from "./components/utils/ScrollToTop";
 import WishlistPage from "./pages/wishlist/Wishlist";
 import AboutUsPage from "./pages/aboutUs/AboutUs";
 import Profile from "./pages/profile/Profile";
+import MyOrders from "./pages/orders/MyOrders";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/payment" element={<Payment />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/my-orders" element={<MyOrders />} />
           </Route>
 
           {/*--- RUTAS PROTEGIDAS (SOLO ADMIN) --- */}

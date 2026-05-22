@@ -5,6 +5,7 @@ import {
   getAllOrders,
   getOrderById,
   updateOrder,
+  cancelOrder,
 } from "../controllers/ordersController.js";
 import { protect, adminOnly } from "../middleware/auth.js";
 import {
@@ -24,5 +25,7 @@ router.get("/", protect, adminOnly, getAllOrders);
 router.get("/:id", protect, getOrderByIdValidator, handleValidationErrors, getOrderById);
 
 router.put("/:id/status", protect, adminOnly, updateOrderStatusValidator, handleValidationErrors, updateOrder);
+
+router.delete("/:id", protect, cancelOrder);
 
 export default router;

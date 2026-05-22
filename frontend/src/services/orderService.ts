@@ -20,3 +20,9 @@ export const updateOrderStatus = async (id: string, status: string) => {
     body: JSON.stringify({ status }),
   });
 };
+
+export const cancelOrder = async (id: string) => {
+  return await apiClient(`/orders/${id}`, {
+    method: "DELETE",
+  });
+};

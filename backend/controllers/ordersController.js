@@ -104,10 +104,7 @@ export const getAllOrders = async (req, res) => {
 
 export const getOrderById = async (req, res) => {
   try {
-    const order = await Order.findOne({
-      _id: req.params.id,
-      $or: [{ userId: req.user._id }, { userId: req.user._id }],
-    })
+    const order = await Order.findById(req.params.id)
       .populate("products.productId")
       .populate("userId", "username email");
 
@@ -160,6 +157,47 @@ export const updateOrder = async (req, res) => {
     res.json(order);
   } catch (error) {
     logger.error(`Error en updateOrder: ${error.message}`, { stack: error.stack });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//@ desc  Cancelar orden
+//@ route DELETE api/orders/:id
+//@ access Private (usuario dueño o admin)
+export const cancelOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Orden no encontrada" });
+    }
+
+    if (
+      order.userId.toString() !== req.user._id.toString() &&
+      req.user.type !== "admin"
+    ) {
+      return res.status(403).json({ message: "No autorizado" });
+    }
+
+    if (order.status === "cancelled") {
+      return res.status(400).json({ message: "La orden ya está cancelada" });
+    }
+
+    for (const item of order.products) {
+      await Product.findByIdAndUpdate(item.productId, {
+        $inc: { stock: item.quantity },
+      });
+    }
+
+    order.status = "cancelled";
+    await order.save();
+
+    await order.populate("products.productId");
+
+    logger.info(`Orden cancelada: ${order._id} por usuario ${req.user._id}`);
+    res.json({ message: "Orden cancelada correctamente", order });
+  } catch (error) {
+    logger.error(`Error en cancelOrder: ${error.message}`, { stack: error.stack });
     res.status(500).json({ message: error.message });
   }
 };
