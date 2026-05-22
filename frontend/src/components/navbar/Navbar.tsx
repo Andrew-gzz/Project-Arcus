@@ -13,6 +13,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
   const [user, setUser] = useState<{ username: string; type: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [categories, setCategories] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -98,6 +99,13 @@ export default function Navbar() {
     );
   }, [cartItems]);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   const handleConfirmLogout = async () => {
     try {
       await logout();
@@ -137,6 +145,7 @@ export default function Navbar() {
             <form
               className="d-flex mx-auto my-2 my-lg-0"
               style={{ flex: "0 1 500px" }}
+              onSubmit={handleSearch}
             >
               <div
                 className="input-group bg-white rounded-pill p-1 shadow-sm"
@@ -147,6 +156,8 @@ export default function Navbar() {
                   type="search"
                   placeholder="Busca productos"
                   aria-label="Buscar"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button
                   className="btn rounded-pill px-4 fw-bold text-white"

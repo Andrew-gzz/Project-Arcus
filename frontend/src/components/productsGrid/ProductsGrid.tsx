@@ -668,6 +668,7 @@ export function ProductGrid2() {
 export function ProductGrid3({
   categoria,
   activeFilters = { categories: [], inStock: undefined, minRating: undefined },
+  searchQuery = "",
 }: {
   categoria: string;
   activeFilters?: {
@@ -675,6 +676,7 @@ export function ProductGrid3({
     inStock: boolean | undefined;
     minRating: number | undefined;
   };
+  searchQuery?: string;
 }) {
   const navigate = useNavigate();
 
@@ -748,7 +750,7 @@ export function ProductGrid3({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [categoria, activeFilters]);
+  }, [categoria, activeFilters, searchQuery]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -769,6 +771,7 @@ export function ProductGrid3({
           category: allCategories.length > 0 ? allCategories : undefined,
           inStock: activeFilters.inStock,
           minRating: activeFilters.minRating,
+          search: searchQuery || undefined,
         });
 
         setProducts(data.products);
@@ -782,7 +785,7 @@ export function ProductGrid3({
     };
 
     fetchProductos();
-  }, [currentPage, categoria, activeFilters]);
+  }, [currentPage, categoria, activeFilters, searchQuery]);
 
   return (
     <div className="container-fluid" style={{ minHeight: "100vh" }}>
@@ -795,9 +798,11 @@ export function ProductGrid3({
         <EmptyProductsState
           title="No encontramos productos"
           message={
-            categoria && categoria !== "General"
-              ? `No hay productos disponibles en la categoría "${categoria}".`
-              : "Por el momento no hay productos disponibles."
+            searchQuery
+              ? `No hay resultados para "${searchQuery}".`
+              : categoria && categoria !== "General"
+                ? `No hay productos disponibles en la categoría "${categoria}".`
+                : "Por el momento no hay productos disponibles."
           }
         />
       ) : (
