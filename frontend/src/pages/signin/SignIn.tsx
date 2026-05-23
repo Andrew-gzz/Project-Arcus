@@ -1,6 +1,5 @@
 //frontend/src/pages/signip/SignIn.tsx
 import { useState } from "react";
-import ExtLogIn from "../../components/utils/ExtLogIn";
 import { login } from "../../services/authService";
 import "./SignIn.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -54,6 +53,7 @@ function SignInPage() {
 
       // GUARDAMOS DATOS DEL USUARIO como un string JSON
       localStorage.setItem("user", JSON.stringify(data.user));
+      window.dispatchEvent(new Event("userChanged"));
 
       // Redirección después de registro
       setTimeout(() => {
@@ -176,8 +176,6 @@ function SignInPage() {
                 {loading ? "Iniciando la sesión..." : "Iniciar sesión"}
               </button>
             </form>
-
-            <ExtLogIn />
           </div>
 
           {/* Right Section */}

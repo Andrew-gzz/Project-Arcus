@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import { ProductGrid3 } from "../../components/productsGrid/ProductsGrid";
 import "./FiltersSidebar.css";
 import FiltersSidebar, {
@@ -8,7 +8,6 @@ import FiltersSidebar, {
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 import { OfferCard } from "../../components/utils/BonCard";
 
-// Estado inicial de filtros — todo vacío (sin restricciones)
 const DEFAULT_FILTERS: ActiveFilters = {
   categories: [],
   inStock: undefined,
@@ -17,22 +16,32 @@ const DEFAULT_FILTERS: ActiveFilters = {
 
 export default function Catalog() {
   const { category } = useParams();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
+
+  const [activeFilters, setActiveFilters] =
+    useState<ActiveFilters>(DEFAULT_FILTERS);
 
   const categoryName = category
     ? category.charAt(0).toUpperCase() + category.slice(1)
     : "General";
 
-  // ✅ El estado de filtros vive aquí — fluye hacia sidebar y grid
-  const [activeFilters, setActiveFilters] =
-    useState<ActiveFilters>(DEFAULT_FILTERS);
+  useEffect(() => {
+    setActiveFilters(DEFAULT_FILTERS);
+  }, [categoryName]);
 
-  const breadcrumbPaths: BreadcrumbItem[] = [
-    { name: "Inicio", url: "/" },
-    {
-      name: `Catálogo de ${categoryName}`,
-      url: category ? `/catalog/${category}` : "/catalog",
-    },
-  ];
+  const breadcrumbPaths: BreadcrumbItem[] = searchQuery
+    ? [
+        { name: "Inicio", url: "/" },
+        { name: `Búsqueda: "${searchQuery}"` },
+      ]
+    : [
+        { name: "Inicio", url: "/" },
+        {
+          name: `Catálogo de ${categoryName}`,
+          url: category ? `/catalog/${category}` : "/catalog",
+        },
+      ];
 
   return (
     <>
@@ -41,18 +50,17 @@ export default function Catalog() {
       <div className="container">
         <div className="row g-4">
           <div className="col-12 col-lg-3">
-            {/* Sidebar recibe el estado y un callback para actualizarlo */}
             <FiltersSidebar
               filters={activeFilters}
               onChange={setActiveFilters}
-              currentCategory={categoryName} // ← pasa la categoría de la URL
+              currentCategory={categoryName}
             />
           </div>
           <div className="col-12 col-lg-9">
-            {/* Grid recibe la categoría de la URL + los filtros activos */}
             <ProductGrid3
               categoria={categoryName}
               activeFilters={activeFilters}
+              searchQuery={searchQuery}
             />
           </div>
           <OfferCard />

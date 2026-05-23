@@ -9,43 +9,33 @@ import {
 } from "../../services/wishlistService";
 import { addToCart } from "../../services/cartService";
 
-//GRID PRINCIPAL DE PRODUCTOS PARA EL LANDING
 export default function ProductGrid() {
-  //Para navegar
   const navigate = useNavigate();
 
-  // Estados para los productos, carga y errores
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Estados para Paginación y Filtros
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [activeCategory, setActiveCategory] = useState<string>(""); // "" significa que muestra todos
+  const [activeCategory, setActiveCategory] = useState<string>("");
 
   const [hoveredCard, setHoveredCard] = useState<string | number | null>(null);
 
-  // CART: Set de IDs para saber qué productos están en el carrito 
   const handleAddToCart = async (productId: string) => {
     try {
-      console.log("CLICK ADD TO CART");
       await addToCart(productId, 1);
-       console.log("RESPUESTA BACKEND:", Response);
-      window.dispatchEvent(new Event("cartUpdated")); 
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error(error);
     }
   };
 
-
-  // WISHLIST: Set de IDs para saber qué productos ya están guardados
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
   const [wishlistLoading, setWishlistLoading] = useState<Set<string>>(
     new Set(),
   );
 
-  // Carga la wishlist del usuario al montar el componente
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
@@ -63,7 +53,7 @@ export default function ProductGrid() {
     e: React.MouseEvent,
     productId: string,
   ) => {
-    e.stopPropagation(); // Evita activar el hover de la card
+    e.stopPropagation();
     if (wishlistLoading.has(productId)) return;
 
     setWishlistLoading((prev) => new Set(prev).add(productId));
@@ -91,19 +81,16 @@ export default function ProductGrid() {
     }
   };
 
-  // Función para cargar los productos con los filtros actuales
   const loadProducts = async () => {
     try {
       setLoading(true);
       setError("");
 
-      // Construimos el objeto de filtros
       const filters: any = {
         page: currentPage,
         limit: 8,
       };
 
-      // Si hay una categoría activa, la enviamos como array
       if (activeCategory) {
         filters.category = [activeCategory];
       }
@@ -121,30 +108,24 @@ export default function ProductGrid() {
     }
   };
 
-  // UseEffect: Se ejecuta al montar el componente y cada vez que cambia la página o la categoría
   useEffect(() => {
     loadProducts();
   }, [currentPage, activeCategory]);
 
-  // Manejador para los botones de filtros rápidos
   const handleCategoryClick = (category: string) => {
-    // Si hace clic en la misma categoría, la desactiva
     if (activeCategory === category) {
       setActiveCategory("");
     } else {
       setActiveCategory(category);
     }
-    // Siempre que cambiamos de filtro, regresamos a la página 1
     setCurrentPage(1);
   };
 
   return (
     <div className="container-fluid py-5" style={{ minHeight: "100vh" }}>
-      {/* HEADER: Título y Filtros Rápidos */}
       <div className="d-flex justify-content-between align-items-center mb-5 ">
         <h2 className="text-warning fw-bold">Productos populares</h2>
 
-        {/* FILTROS DINÁMICOS */}
         <div className="d-none d-md-flex gap-2">
           {["Consola", "Videojuego", "Accesorios"].map((cat) => (
             <button
@@ -152,8 +133,8 @@ export default function ProductGrid() {
               onClick={() => handleCategoryClick(cat)}
               className={`btn rounded-pill px-4 ${
                 activeCategory === cat
-                  ? "btn-info text-dark fw-bold" // Estilo activo
-                  : "btn-outline-info" // Estilo inactivo
+                  ? "btn-info text-dark fw-bold"
+                  : "btn-outline-info"
               }`}
             >
               {cat}
@@ -162,7 +143,6 @@ export default function ProductGrid() {
         </div>
       </div>
 
-      {/* ESTADOS DE CARGA Y ERROR */}
       {loading && (
         <div className="text-center text-info my-5">Cargando productos...</div>
       )}
@@ -178,10 +158,8 @@ export default function ProductGrid() {
         />
       ) : (
         <>
-          {/* GRID DE PRODUCTOS */}
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
             {products.map((product, index) => {
-              // Identificador único para el hover
               const cardId = product._id || index;
               const isFavorite = wishlistIds.has(product._id);
               const isHovered = hoveredCard === product._id;
@@ -194,7 +172,6 @@ export default function ProductGrid() {
                     style={{
                       backgroundColor: "#1e1b33",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      // Pequeño efecto visual extra al hacer hover en toda la tarjeta
                       transform:
                         hoveredCard === cardId
                           ? "translateY(-5px)"
@@ -203,8 +180,9 @@ export default function ProductGrid() {
                         hoveredCard === cardId
                           ? "0 10px 20px rgba(0,0,0,0.5)"
                           : "none",
+                      cursor: "pointer",
                     }}
-                    // 2. EVENTOS: Detectan cuando el ratón entra y sale
+                    onClick={() => navigate(`/product/${product._id}`)}
                     onMouseEnter={() => setHoveredCard(cardId)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
@@ -212,7 +190,6 @@ export default function ProductGrid() {
                       className="position-relative p-4 d-flex justify-content-center align-items-center"
                       style={{ backgroundColor: "#25223d", height: "200px" }}
                     >
-                      {/* BOTÓN DE FAVORITOS*/}
                       <button
                         onClick={(e) => handleWishlistToggle(e, product._id)}
                         disabled={isProcessing}
@@ -223,27 +200,17 @@ export default function ProductGrid() {
                         }
                         className="btn position-absolute top-0 end-0 m-3 rounded-circle d-flex align-items-center justify-content-center p-0"
                         style={{
-                          // 1. Fondo transparente (eliminado el turquesa)
                           backgroundColor: "transparent",
                           width: "34px",
                           height: "34px",
                           border: "none",
                           zIndex: 10,
-
-                          // 2. Lógica de visibilidad (Opacity)
-                          // Visible (1) si: está en hover O si ya es favorito. Invisible (0) si no.
                           opacity: isHovered || isFavorite ? 1 : 0,
-
-                          // 3. Efecto de escala solo en hover real (no solo por ser favorito)
                           transform: isHovered ? "scale(1.15)" : "scale(1)",
-
                           transition:
                             "opacity 0.3s ease, transform 0.2s ease, background-color 0.2s ease",
-
-                          // Evitar clics cuando está invisible (opacity 0)
                           pointerEvents:
                             isHovered || isFavorite ? "auto" : "none",
-
                           cursor: isProcessing ? "not-allowed" : "pointer",
                         }}
                       >
@@ -260,9 +227,7 @@ export default function ProductGrid() {
                             width="22"
                             height="22"
                             viewBox="0 0 16 16"
-                            // Color de relleno: Rojo si es favorito, transparente si no.
                             fill={isFavorite ? "#F31919" : "transparent"}
-                            // Borde: Rojo si es favorito, blanco si no (para que se vea en hover).
                             stroke={isFavorite ? "#F31919" : "white"}
                             strokeWidth="1.2"
                             style={{
@@ -310,7 +275,6 @@ export default function ProductGrid() {
                         )}
                       </div>
 
-                      {/* 3. LÓGICA DE HOVER PARA LOS BOTONES */}
                       <div
                         className="d-flex gap-2 mt-auto pt-2"
                         style={{
@@ -321,21 +285,17 @@ export default function ProductGrid() {
                         }}
                       >
                         <button
-                          onClick={() => handleAddToCart(product._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product._id);
+                          }}
                           className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
                           style={{
                             backgroundColor: "#e2f54d",
                             fontSize: "0.8rem",
                           }}
                         >
-                          Añadir al carrito 🛒
-                        </button>
-                        <button
-                          className="btn btn-warning rounded-3"
-                          style={{ backgroundColor: "#e2f54d" }}
-                          onClick={() => navigate(`/product/${product._id}`)}
-                        >
-                          👁️
+                          Añadir al carrito
                         </button>
                       </div>
                     </div>
@@ -344,7 +304,6 @@ export default function ProductGrid() {
               );
             })}
           </div>
-          {/* CONTROLES DE PAGINACIÓN REALES */}
           {!loading && totalPages > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
               <button
@@ -373,24 +332,23 @@ export default function ProductGrid() {
     </div>
   );
 }
-//GRID2 DE PRODUCTOS DEL LANDIG (Proximamente con filtro de "Nuevo")
+
 export function ProductGrid2() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  // Estado para controlar el hover
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  //CART 
+
   const handleAddToCart = async (productId: string) => {
     try {
       await addToCart(productId, 1);
-      window.dispatchEvent(new Event("cartUpdated")); // opcional pero recomendado
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error(error);
     }
   };
-  // WISHLIST
+
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
   const [wishlistLoading, setWishlistLoading] = useState<Set<string>>(
     new Set(),
@@ -473,8 +431,7 @@ export function ProductGrid2() {
 
   const mainProduct = products[0];
   const sideProducts = products.slice(1, 3);
-  
-  // Botón de wishlist reutilizable
+
   const WishlistButton = ({ productId }: { productId: string }) => {
     const isFavorite = wishlistIds.has(productId);
     const isHovered = hoveredCard === productId;
@@ -492,10 +449,8 @@ export function ProductGrid2() {
           height: "34px",
           border: "none",
           zIndex: 10,
-          // Lógica de visibilidad
           opacity: isFavorite || isHovered ? 1 : 0,
           pointerEvents: isFavorite || isHovered ? "auto" : "none",
-          // Escala solo en hover real
           transform: isHovered ? "scale(1.15)" : "scale(1)",
           transition: "opacity 0.3s ease, transform 0.2s ease",
           cursor: isProcessing ? "not-allowed" : "pointer",
@@ -522,7 +477,7 @@ export function ProductGrid2() {
       </button>
     );
   };
-  // Componente interno para los botones de acción
+
   const ActionButtons = ({ productId }: { productId: string }) => (
     <div
       className="d-flex gap-2 mt-auto pt-2"
@@ -533,18 +488,14 @@ export function ProductGrid2() {
       }}
     >
       <button
-        onClick={() => handleAddToCart(productId)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleAddToCart(productId);
+        }}
         className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
         style={{ backgroundColor: "#e2f54d", fontSize: "0.8rem" }}
       >
-        Añadir al carrito 🛒
-      </button>
-      <button
-        className="btn btn-warning rounded-3"
-        style={{ backgroundColor: "#e2f54d" }}
-        onClick={() => navigate(`/product/${productId}`)}
-      >
-        👁️
+        Añadir al carrito
       </button>
     </div>
   );
@@ -552,11 +503,12 @@ export function ProductGrid2() {
   return (
     <>
       <div className="row align-items-stretch mb-5">
-        {/* Sección 1: Producto Principal */}
         <div
           className="col-sm-6 mb-3 mb-sm-0"
+          style={{ cursor: "pointer" }}
           onMouseEnter={() => setHoveredCard(mainProduct._id)}
           onMouseLeave={() => setHoveredCard(null)}
+          onClick={() => navigate(`/product/${mainProduct._id}`)}
         >
           <div className="position-relative h-100">
             <WishlistButton productId={mainProduct._id} />
@@ -569,7 +521,6 @@ export function ProductGrid2() {
                   hoveredCard === mainProduct._id ? "translateY(-5px)" : "none",
               }}
             >
-              {/* Imagen */}
               <div className="col-md-4 bg-white d-flex align-items-center p-2">
                 <img
                   src={mainProduct.image || "src/assets/placeholder.png"}
@@ -579,7 +530,6 @@ export function ProductGrid2() {
                 />
               </div>
 
-              {/* Texto */}
               <div className="col-md-8">
                 <div
                   className="card rounded-0 h-100 border-0 text-white p-2"
@@ -604,7 +554,6 @@ export function ProductGrid2() {
                       ${mainProduct.price}
                     </p>
 
-                    {/* Estrellas y Botones */}
                     <div className="mt-auto">
                       <div className="text-secondary small mb-2">
                         <span className="text-info fs-6">
@@ -635,20 +584,19 @@ export function ProductGrid2() {
           </div>
         </div>
 
-        {/* Sección 2: Productos Secundarios */}
         <div className="col-sm-6 d-flex gap-4 flex-sm-column">
           {sideProducts.map((product) => (
             <div
               key={product._id}
-              // ✅ position-relative aquí, overflow-hidden eliminado de este nivel
               className="position-relative flex-grow-1"
+              style={{ cursor: "pointer" }}
               onMouseEnter={() => setHoveredCard(product._id)}
               onMouseLeave={() => setHoveredCard(null)}
+              onClick={() => navigate(`/product/${product._id}`)}
             >
               <WishlistButton productId={product._id} />
 
               <div
-                // ✅ overflow-hidden se queda en el row interno, sin afectar al botón
                 className="row g-0 rounded-4 overflow-hidden h-100 border border-secondary shadow-sm"
                 style={{
                   transition: "transform 0.3s ease",
@@ -656,7 +604,6 @@ export function ProductGrid2() {
                     hoveredCard === product._id ? "translateX(5px)" : "none",
                 }}
               >
-                {/* Imagen */}
                 <div className="col-md-4 bg-white d-flex align-items-center p-2">
                   <img
                     src={product.image || "src/assets/placeholder.png"}
@@ -666,7 +613,6 @@ export function ProductGrid2() {
                   />
                 </div>
 
-                {/* Texto */}
                 <div className="col-md-8">
                   <div className="card rounded-0 h-100 border-0 text-white p-1 bg-transparent">
                     <div className="card-body d-flex flex-column">
@@ -703,7 +649,6 @@ export function ProductGrid2() {
             </div>
           ))}
 
-          {/* Relleno si faltan productos */}
           {sideProducts.length < 2 && (
             <div
               className="row g-0 rounded-4 overflow-hidden border border-secondary flex-grow-1 opacity-50"
@@ -723,6 +668,7 @@ export function ProductGrid2() {
 export function ProductGrid3({
   categoria,
   activeFilters = { categories: [], inStock: undefined, minRating: undefined },
+  searchQuery = "",
 }: {
   categoria: string;
   activeFilters?: {
@@ -730,6 +676,7 @@ export function ProductGrid3({
     inStock: boolean | undefined;
     minRating: number | undefined;
   };
+  searchQuery?: string;
 }) {
   const navigate = useNavigate();
 
@@ -742,17 +689,15 @@ export function ProductGrid3({
   const [totalPages, setTotalPages] = useState(1);
   const [hoveredCard, setHoveredCard] = useState<string | number | null>(null);
 
-  //CART 
   const handleAddToCart = async (productId: string) => {
     try {
       await addToCart(productId, 1);
-      window.dispatchEvent(new Event("cartUpdated")); // opcional pero recomendado
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error(error);
     }
   };
 
-  // WISHLIST
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
   const [wishlistLoading, setWishlistLoading] = useState<Set<string>>(
     new Set(),
@@ -803,10 +748,9 @@ export function ProductGrid3({
     }
   };
 
-  // Resetear a página 1 cuando cambia la categoría URL o cualquier filtro del sidebar
   useEffect(() => {
     setCurrentPage(1);
-  }, [categoria, activeFilters]);
+  }, [categoria, activeFilters, searchQuery]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -814,11 +758,9 @@ export function ProductGrid3({
         setLoading(true);
         setError("");
 
-        // ✅ Combinar: categoría de la URL + categorías extra del sidebar
         const categoryFromUrl = categoria !== "General" ? [categoria] : [];
         const categoriesFromSidebar = activeFilters.categories;
 
-        // Unión sin duplicados
         const allCategories = [
           ...new Set([...categoryFromUrl, ...categoriesFromSidebar]),
         ];
@@ -829,6 +771,7 @@ export function ProductGrid3({
           category: allCategories.length > 0 ? allCategories : undefined,
           inStock: activeFilters.inStock,
           minRating: activeFilters.minRating,
+          search: searchQuery || undefined,
         });
 
         setProducts(data.products);
@@ -842,11 +785,10 @@ export function ProductGrid3({
     };
 
     fetchProductos();
-  }, [currentPage, categoria, activeFilters]);
+  }, [currentPage, categoria, activeFilters, searchQuery]);
 
   return (
     <div className="container-fluid" style={{ minHeight: "100vh" }}>
-      {/* ESTADOS DE CARGA Y ERROR */}
       {loading && (
         <div className="text-center text-info my-5">Cargando productos...</div>
       )}
@@ -856,14 +798,15 @@ export function ProductGrid3({
         <EmptyProductsState
           title="No encontramos productos"
           message={
-            categoria && categoria !== "General"
-              ? `No hay productos disponibles en la categoría "${categoria}".`
-              : "Por el momento no hay productos disponibles."
+            searchQuery
+              ? `No hay resultados para "${searchQuery}".`
+              : categoria && categoria !== "General"
+                ? `No hay productos disponibles en la categoría "${categoria}".`
+                : "Por el momento no hay productos disponibles."
           }
         />
       ) : (
         <>
-          {/* GRID DE PRODUCTOS */}
           <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 row-col-lg-5 g-4">
             {products.map((product, index) => {
               const cardId = product._id || index;
@@ -877,7 +820,6 @@ export function ProductGrid3({
                     style={{
                       backgroundColor: "#1e1b33",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      // Pequeño efecto visual extra al hacer hover en toda la tarjeta
                       transform:
                         hoveredCard === cardId
                           ? "translateY(-5px)"
@@ -886,16 +828,16 @@ export function ProductGrid3({
                         hoveredCard === cardId
                           ? "0 10px 20px rgba(0,0,0,0.5)"
                           : "none",
+                      cursor: "pointer",
                     }}
+                    onClick={() => navigate(`/product/${product._id}`)}
                     onMouseEnter={() => setHoveredCard(cardId)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    {/* Parte Superior: Imagen y Heart */}
                     <div
                       className="position-relative p-4 d-flex justify-content-center align-items-center"
                       style={{ backgroundColor: "#25223d", height: "200px" }}
                     >
-                      {/* BOTÓN DE FAVORITOS*/}
                       <button
                         onClick={(e) => handleWishlistToggle(e, product._id)}
                         disabled={isProcessing}
@@ -906,27 +848,17 @@ export function ProductGrid3({
                         }
                         className="btn position-absolute top-0 end-0 m-3 rounded-circle d-flex align-items-center justify-content-center p-0"
                         style={{
-                          // 1. Fondo transparente (eliminado el turquesa)
                           backgroundColor: "transparent",
                           width: "34px",
                           height: "34px",
                           border: "none",
                           zIndex: 10,
-
-                          // 2. Lógica de visibilidad (Opacity)
-                          // Visible (1) si: está en hover O si ya es favorito. Invisible (0) si no.
                           opacity: isHovered || isFavorite ? 1 : 0,
-
-                          // 3. Efecto de escala solo en hover real (no solo por ser favorito)
                           transform: isHovered ? "scale(1.15)" : "scale(1)",
-
                           transition:
                             "opacity 0.3s ease, transform 0.2s ease, background-color 0.2s ease",
-
-                          // Evitar clics cuando está invisible (opacity 0)
                           pointerEvents:
                             isHovered || isFavorite ? "auto" : "none",
-
                           cursor: isProcessing ? "not-allowed" : "pointer",
                         }}
                       >
@@ -943,9 +875,7 @@ export function ProductGrid3({
                             width="22"
                             height="22"
                             viewBox="0 0 16 16"
-                            // Color de relleno: Rojo si es favorito, transparente si no.
                             fill={isFavorite ? "#F31919" : "transparent"}
-                            // Borde: Rojo si es favorito, blanco si no (para que se vea en hover).
                             stroke={isFavorite ? "#F31919" : "white"}
                             strokeWidth="1.2"
                             style={{
@@ -964,7 +894,6 @@ export function ProductGrid3({
                       />
                     </div>
 
-                    {/* Parte Inferior: Info */}
                     <div
                       className="card-body text-white p-3"
                       style={{ backgroundColor: "#0C062E" }}
@@ -991,7 +920,6 @@ export function ProductGrid3({
                         )}
                       </div>
 
-                      {/* 3. LÓGICA DE HOVER PARA LOS BOTONES */}
                       <div
                         className="d-flex gap-2 mt-auto pt-2"
                         style={{
@@ -1002,7 +930,10 @@ export function ProductGrid3({
                         }}
                       >
                         <button
-                          onClick={() => handleAddToCart(product._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product._id);
+                          }}
                           className="btn btn-warning flex-grow-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2"
                           style={{
                             backgroundColor: "#e2f54d",
@@ -1010,13 +941,6 @@ export function ProductGrid3({
                           }}
                         >
                           Añadir al carrito
-                        </button>
-                        <button
-                          className="btn btn-warning rounded-3"
-                          style={{ backgroundColor: "#e2f54d" }}
-                          onClick={() => navigate(`/product/${product._id}`)}
-                        >
-                          👁️
                         </button>
                       </div>
                     </div>
@@ -1026,7 +950,6 @@ export function ProductGrid3({
             })}
           </div>
 
-          {/* CONTROLES DE PAGINACIÓN REALES */}
           {!loading && totalPages > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
               <button
@@ -1055,7 +978,3 @@ export function ProductGrid3({
     </div>
   );
 }
-
-//GRID DE PRODUCTOS DEL ADMINISTRADOR (FALTA MOVERLO AQUÍ O NO?)
-
-//GRID DE PRODUCTOS SIMILARES (FALTA MOVERLO AQUÍ)

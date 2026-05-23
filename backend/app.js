@@ -9,6 +9,7 @@ import requestLogger from "./middleware/logger.js";
 import logger from "./utils/logger.js";
 
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
 import productRoutes from "./routes/products.js";
 import cartRoutes from "./routes/cart.js";
 import wishlistRoutes from "./routes/wishlist.js";
@@ -16,6 +17,7 @@ import orderRoutes from "./routes/orders.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
 import reportRoutes from "./routes/reports.js";
 import categoryRoutes from "./routes/category.js";
+import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -32,6 +34,7 @@ app.use(cookieParser());
 app.use(requestLogger);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
@@ -44,7 +47,13 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Arcus API is running" });
 });
 
-const PORT = process.env.PORT || 5000;
+// 404 catch-all para rutas no encontradas
+app.use(notFoundHandler);
+
+// Manejador de errores centralizado (siempre al final)
+app.use(errorHandler);
+
+const PORT = process.env.PORT;
 
 const startServer = async () => {
   try {

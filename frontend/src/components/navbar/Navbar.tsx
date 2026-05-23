@@ -12,31 +12,36 @@ import { useMemo } from "react";
 export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutToast, setShowLogoutToast] = useState(false);
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [user, setUser] = useState<{ username: string; type: string } | null>(
+    null,
+  );
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Estado para las categorías
   const [categories, setCategories] = useState<any[]>([]);
-  const [allProducts, setAllProducts] = useState<any[]>([]); //Para contar cantidad de productos en favoritos
-  const [cartItems, setCartItems] = useState<any[]>([]); // Para contar cantidad de productos en carrito
-  
-
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // Revisar si hay un usuario al cargar el componente
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    // Función para obtener las categorías al cargar el Navbar
+    const checkUser = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkUser();
+
+    window.addEventListener("storage", checkUser);
+    window.addEventListener("userChanged", checkUser);
+
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-
-        // Ordenamos alfabéticamente por el campo 'name'
         const sortedCategories = data.sort((a: any, b: any) =>
           a.name.localeCompare(b.name),
         );
-
         setCategories(sortedCategories);
       } catch (error) {
         console.error("Error al cargar las categorías:", error);
@@ -48,69 +53,76 @@ export default function Navbar() {
     const dropdownList = [...dropdownElementList].map((el) => new Dropdown(el));
     return () => {
       dropdownList.forEach((dropdown) => dropdown.dispose());
+      window.removeEventListener("storage", checkUser);
+      window.removeEventListener("userChanged", checkUser);
     };
   }, []);
-
-  // frontend/src/components/navbar/Navbar.tsx
 
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const data = await getCart();
-
         setCartItems(data?.products ?? []);
-      } catch (error) {
-        console.error("Error al cargar carrito:", error);
+      } catch {
+        // Usuario no logueado o error de red
       }
     };
 
     fetchCartData();
 
-    window.addEventListener("cartUpdated", fetchCartData);
+    const handleCartUpdate = () => {
+      fetchCartData();
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
-      window.removeEventListener("cartUpdated", fetchCartData);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
 
   useEffect(() => {
-    // 1. Metemos la lógica de carga en una función reusable
     const fetchWishlistData = async () => {
       try {
         const data = await getWishlist();
-        setAllProducts(data.products); // Actualiza el estado con los nuevos favoritos
-      } catch (error) {
-        console.error("Error al cargar favoritos:", error);
+        setAllProducts(data.products ?? []);
+      } catch {
+        // Usuario no logueado o error de red
       }
     };
 
-    // 2. Ejecutamos la carga inicial
     fetchWishlistData();
 
-    // 3. Escuchamos el evento personalizado
-    window.addEventListener("wishlistUpdated", fetchWishlistData);
+    const handleWishlistUpdate = () => {
+      fetchWishlistData();
+    };
 
-    // 4. Limpiamos el evento cuando el componente se desmonte
+    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+
     return () => {
-      window.removeEventListener("wishlistUpdated", fetchWishlistData);
+      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
     };
   }, []);
 
   const totalCartItems = useMemo(() => {
-    return cartItems.reduce(
-      (acc, item) => acc + (item.quantity || 1),
-      0
-    );
+    return cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
   }, [cartItems]);
 
-  // Función para manejar el cierre de sesión real
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   const handleConfirmLogout = async () => {
     try {
-      await logout(); // 1. Llama al backend para borrar la cookie
-      localStorage.removeItem("user"); // 2. Borra los datos locales
-      setUser(null); // 3. Actualiza la UI
+      await logout();
+      localStorage.removeItem("user");
+      setUser(null);
+      window.dispatchEvent(new Event("userChanged"));
       setShowLogoutToast(false);
-      navigate("/signin"); // 4. Redirige al login
+      navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
@@ -122,7 +134,7 @@ export default function Navbar() {
         className="navbar navbar-expand-md navbar-dark"
         style={{ backgroundColor: "#0C062E" }}
       >
-        <div className="container">
+        <div className="container d-flex flex-wrap align-items-center">
           <Link className="navbar-brand" to="/">
             <img src={logo} alt="Proyect Arcus" width="auto" height="48" />
           </Link>
@@ -142,6 +154,7 @@ export default function Navbar() {
             <form
               className="d-flex mx-auto my-2 my-lg-0"
               style={{ flex: "0 1 500px" }}
+              onSubmit={handleSearch}
             >
               <div
                 className="input-group bg-white rounded-pill p-1 shadow-sm"
@@ -152,6 +165,8 @@ export default function Navbar() {
                   type="search"
                   placeholder="Busca productos"
                   aria-label="Buscar"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button
                   className="btn rounded-pill px-4 fw-bold text-white"
@@ -163,7 +178,7 @@ export default function Navbar() {
               </div>
             </form>
 
-            <ul className="navbar-nav ms-auto align-items-center gap-1">
+            <ul className="navbar-nav ms-auto align-items-center gap-3 flex-row mt-3 mt-md-0">
               <li className="nav-item dropdown">
                 <button
                   className="nav-link dropdown-toggle btn btn-link"
@@ -177,32 +192,66 @@ export default function Navbar() {
                   className="dropdown-menu dropdown-menu-end"
                   aria-labelledby="profileDropdown"
                 >
-                  <li>
-                    <Link className="dropdown-item" to="/signin">
-                      Iniciar sesión
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/signup">
-                      Registrarse
-                    </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="/admin">
-                      Tus productos
-                    </a>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => setShowLogoutToast(true)}
-                    >
-                      Cerrar sesión
-                    </button>
-                  </li>
+                  {user ? (
+                    <>
+                      <li>
+                        <Link className="dropdown-item" to="/profile">
+                          Mi perfil
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className="dropdown-item" to="/my-orders">
+                          Mis órdenes
+                        </Link>
+                      </li>
+                      {user.type === "admin" && (
+                        <>
+                          <li>
+                            <hr className="dropdown-divider" />
+                          </li>
+                          <li>
+                            <Link className="dropdown-item" to="/admin">
+                              Tus productos
+                            </Link>
+                          </li>
+                          <li>
+                            <Link className="dropdown-item" to="/admin/users">
+                              Gestión de usuarios
+                            </Link>
+                          </li>
+                          <li>
+                            <Link className="dropdown-item" to="/admin/reports">
+                              Reportes
+                            </Link>
+                          </li>
+                        </>
+                      )}
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => setShowLogoutToast(true)}
+                        >
+                          Cerrar sesión
+                        </button>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li>
+                        <Link className="dropdown-item" to="/signin">
+                          Iniciar sesión
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className="dropdown-item" to="/signup">
+                          Registrarse
+                        </Link>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </li>
               {/*CARRITO DE COMPRAS */}
@@ -252,13 +301,11 @@ export default function Navbar() {
               Catálogo
             </button>
             <ul className="dropdown-menu">
-              {/* 4. Iteración dinámica de categorías */}
               {categories.length > 0 ? (
                 categories.map((cat, index) => (
                   <li key={cat._id || index}>
                     <Link
                       className="dropdown-item"
-                      // Convertimos el nombre a minúsculas y quitamos espacios para la URL
                       to={`/catalog/${cat.name.replace(/\s+/g, "-")}`}
                     >
                       {cat.name}
@@ -299,7 +346,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/*Renderizar el ToastMessage*/}
       <ToastMessage
         show={showLogoutToast}
         onClose={() => setShowLogoutToast(false)}

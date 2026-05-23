@@ -4,6 +4,7 @@ import {
   getWishlist,
   removeFromWishlist,
 } from "../../services/wishlistService";
+import { addToCart } from "../../services/cartService";
 import EmptyProductsState from "../../components/utils/EmptyProductsState";
 import Breadcrumb, { BreadcrumbItem } from "../../components/utils/Breadcrumb";
 
@@ -53,6 +54,15 @@ export default function WishlistPage() {
   useEffect(() => {
     loadWishlist();
   }, []);
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1);
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch {
+      // Error silencioso
+    }
+  };
 
   const handleRemoveFromWishlist = async (
     e: React.MouseEvent,
@@ -116,6 +126,7 @@ export default function WishlistPage() {
                     style={{
                       backgroundColor: "#1e1b33",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      cursor: "pointer",
                       transform:
                         hoveredCard === cardId
                           ? "translateY(-5px)"
@@ -125,6 +136,7 @@ export default function WishlistPage() {
                           ? "0 10px 20px rgba(0,0,0,0.5)"
                           : "none",
                     }}
+                    onClick={() => navigate(`/product/${product._id}`)}
                     onMouseEnter={() => setHoveredCard(cardId)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
@@ -224,15 +236,12 @@ export default function WishlistPage() {
                             backgroundColor: "#e2f54d",
                             fontSize: "0.8rem",
                           }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product._id);
+                          }}
                         >
                           Añadir al carrito
-                        </button>
-                        <button
-                          className="btn btn-warning rounded-3"
-                          style={{ backgroundColor: "#e2f54d" }}
-                          onClick={() => navigate(`/product/${product._id}`)}
-                        >
-                          👁️
                         </button>
                       </div>
                     </div>

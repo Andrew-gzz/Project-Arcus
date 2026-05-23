@@ -109,7 +109,6 @@ export const logoutUser = (req, res) => {
 // @desc    Obtener datos del usuario actual
 // @route   GET /api/auth/me
 export const getUserProfile = async (req, res) => {
-  // Nota: Asume que el middleware 'protect' ya inyectó a req.user
   res.json({
     user: {
       id: req.user._id,
@@ -118,4 +117,116 @@ export const getUserProfile = async (req, res) => {
       type: req.user.type,
     },
   });
+};
+
+// @desc    Actualizar perfil del usuario
+// @route   PUT /api/auth/profile
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "El email ya está en uso" });
+      }
+      user.email = email;
+    }
+
+    if (username && username !== user.username) {
+      const usernameExists = await User.findOne({ username });
+      if (usernameExists) {
+        return res.status(400).json({ message: "El username ya está en uso" });
+      }
+      user.username = username;
+    }
+
+    await user.save();
+    logger.info(`Perfil actualizado: ${user.email}`);
+    res.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        type: user.type,
+      },
+    });
+  } catch (error) {
+    logger.error(`Error en updateProfile: ${error.message}`, { stack: error.stack });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cambiar contraseña
+// @route   PUT /api/auth/password
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Contraseña actual y nueva contraseña son requeridas" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "La nueva contraseña debe tener al menos 6 caracteres" });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ message: "La contraseña actual es incorrecta" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    logger.info(`Contraseña cambiada: ${user.email}`);
+    res.json({ message: "Contraseña actualizada correctamente" });
+  } catch (error) {
+    logger.error(`Error en changePassword: ${error.message}`, { stack: error.stack });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Listar todos los usuarios
+// @route   GET /api/users
+export const listUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (error) {
+    logger.error(`Error en listUsers: ${error.message}`, { stack: error.stack });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Eliminar usuario (admin)
+// @route   DELETE /api/users/:id
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: "No puedes eliminar tu propio usuario" });
+    }
+
+    await Cart.deleteOne({ userId: user._id });
+    await Wishlist.deleteOne({ userId: user._id });
+    await user.deleteOne();
+
+    logger.info(`Usuario eliminado por admin: ${user.email}`);
+    res.json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    logger.error(`Error en deleteUser: ${error.message}`, { stack: error.stack });
+    res.status(500).json({ message: error.message });
+  }
 };

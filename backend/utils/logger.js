@@ -1,9 +1,15 @@
 import winston from 'winston';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const logsDir = path.join(__dirname, '../../logs');
+
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -16,26 +22,23 @@ const logger = winston.createLogger({
   defaultMeta: { service: 'arcus-api' },
   transports: [
     new winston.transports.File({
-      filename: path.join(__dirname, '../../logs/error.log'),
+      filename: path.join(logsDir, 'error.log'),
       level: 'error',
       maxsize: 5242880,
       maxFiles: 5,
     }),
     new winston.transports.File({
-      filename: path.join(__dirname, '../../logs/combined.log'),
+      filename: path.join(logsDir, 'combined.log'),
       maxsize: 5242880,
       maxFiles: 5,
     }),
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      ),
+    }),
   ],
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.simple()
-    ),
-  }));
-}
 
 export default logger;

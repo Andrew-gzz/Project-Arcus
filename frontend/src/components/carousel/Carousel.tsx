@@ -51,7 +51,7 @@ export default function Carousel() {
           {bannerProduct.map((product, index) => (
             <div
               key={index}
-              className={`carousel-item position-relative ${index === 0 ? "active" : ""}`} // ✅ solo el primero activo
+              className={`carousel-item position-relative ${index === 0 ? "active" : ""}`}
             >
               <img
                 src={product.image}
@@ -76,6 +76,7 @@ export default function Carousel() {
                       backgroundColor: "#f02b2b",
                       borderColor: "#f02b2b",
                     }}
+                    onClick={() => navigate(`/product/${product.id}`)}
                   >
                     Comprar ahora
                   </button>

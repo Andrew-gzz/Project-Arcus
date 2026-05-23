@@ -112,9 +112,20 @@ export const rateProduct = async (
       body: JSON.stringify(ratingData),
     });
 
-    return data; // Retorna el mensaje de éxito y los nuevos promedios
+    return data;
   } catch (error: any) {
-    // Si el backend lanza el error "Ya has calificado este producto", llegará aquí
     throw new Error(error.message || "Error al enviar la calificación");
+  }
+};
+
+//Eliminar un producto
+export const deleteProduct = async (id: string) => {
+  try {
+    const data = await apiClient(`/products/${id}`, {
+      method: "DELETE",
+    });
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al eliminar el producto");
   }
 };

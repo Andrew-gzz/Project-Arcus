@@ -36,29 +36,6 @@ function Footer() {
             </p>
           </div>
 
-          {/* Ayuda Column */}
-          <div className="col-lg-3 col-md-6">
-            <h5 className="fw-bold mb-4">Ayuda</h5>
-            <ul className="list-unstyled">
-              <li className="mb-2 d-flex align-items-center">
-                <span className="me-2" style={{ color: "#DFFF00" }}>
-                  ●
-                </span>
-                <a href="#!" className="text-white text-decoration-none">
-                  Servicio al cliente
-                </a>
-              </li>
-              <li className="mb-2 d-flex align-items-center">
-                <span className="me-2" style={{ color: "#DFFF00" }}>
-                  ●
-                </span>
-                <a href="#!" className="text-white text-decoration-none">
-                  Contactanos 81-8329-4000
-                </a>
-              </li>
-            </ul>
-          </div>
-
           {/* About Us Column */}
           <div className="col-lg-4 col-md-6">
             <h5 className="fw-bold mb-4">Sobre nosotros</h5>
@@ -67,19 +44,35 @@ function Footer() {
                 <span className="me-2" style={{ color: "#DFFF00" }}>
                   ●
                 </span>
-                <a href="#!" className="text-white text-decoration-none">
-                  Servicios
-                </a>
+                <Link
+                  to="/membership"
+                  className="text-white text-decoration-none"
+                >
+                  Membresías
+                </Link>
               </li>
               <li className="mb-2 d-flex align-items-center">
                 <span className="me-2" style={{ color: "#DFFF00" }}>
                   ●
                 </span>
-                <a href="#!" className="text-white text-decoration-none">
-                  Facturación
-                </a>
+                <Link
+                  to="/membership"
+                  className="text-white text-decoration-none"
+                >
+                  Sobre Nosotros
+                </Link>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="row mt-3">
+          <div className="col-12 text-center">
+            <p className="small mb-0" style={{ opacity: 0.6 }}>
+              © {new Date().getFullYear()} Project Arcus. Todos los derechos
+              reservados.
+            </p>
           </div>
         </div>
       </div>

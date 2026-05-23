@@ -51,7 +51,7 @@ export default function RatingModal({
         <form onSubmit={handleSubmit}>
           {/* SISTEMA DE ESTRELLAS INTERACTIVO */}
           <div className="d-flex justify-content-center gap-2 mb-4">
-            {[...Array(5)].map((star, index) => {
+            {[...Array(5)].map((_, index) => {
               const currentRating = index + 1;
               return (
                 <button
@@ -76,10 +76,21 @@ export default function RatingModal({
             })}
           </div>
 
+          <div className="mb-4">
+            <label className="form-label text-muted small">Tu comentario (opcional)</label>
+            <textarea
+              className="form-control bg-dark text-white border-secondary"
+              rows={3}
+              placeholder="Cuéntanos tu experiencia..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+          </div>
+
           <div className="d-flex justify-content-center gap-3">
             <button
               type="submit"
-              disabled={loading || rating === 0} // Deshabilitar si no hay estrellas
+              disabled={loading || rating === 0}
               className="btn btn-warning px-4 rounded-pill fw-bold"
             >
               {loading ? "Enviando..." : "Enviar Reseña"}

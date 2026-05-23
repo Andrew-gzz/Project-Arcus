@@ -6,11 +6,16 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from "../controllers/wishlistController.js";
+import {
+  addToWishlistValidator,
+  removeFromWishlistValidator,
+} from "../validators/wishlistValidator.js";
+import { handleValidationErrors } from "../middleware/validate.js";
 
 const router = express.Router();
 
 router.get("/", protect, getWishlist);
-router.post("/add", protect, addToWishlist);
-router.delete("/remove/:productId", protect, removeFromWishlist);
+router.post("/add", protect, addToWishlistValidator, handleValidationErrors, addToWishlist);
+router.delete("/remove/:productId", protect, removeFromWishlistValidator, handleValidationErrors, removeFromWishlist);
 
 export default router;

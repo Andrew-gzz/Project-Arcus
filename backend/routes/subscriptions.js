@@ -1,96 +1,22 @@
 import express from 'express';
-import Subscription from '../models/Subscription.js';
 import { protect, adminOnly } from '../middleware/auth.js';
-import logger from '../utils/logger.js';
+import {
+  createSubscription,
+  getMySubscription,
+  getAllSubscriptions,
+  cancelSubscription,
+} from '../controllers/subscriptionController.js';
+import { createSubscriptionValidator } from '../validators/subscriptionValidator.js';
+import { handleValidationErrors } from '../middleware/validate.js';
 
 const router = express.Router();
 
-router.post('/', protect, async (req, res) => {
-  try {
-    const { type } = req.body;
-    const validTypes = ['start', 'select', 'bonus'];
-    
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({ message: 'Tipo de suscripción inválido' });
-    }
+router.post('/', protect, createSubscriptionValidator, handleValidationErrors, createSubscription);
 
-    const expiration = new Date();
-    expiration.setFullYear(expiration.getFullYear() + 1);
+router.get('/my', protect, getMySubscription);
 
-    let subscription = await Subscription.findOne({ 
-      userId: req.user._id, 
-      status: 'active' 
-    });
+router.get('/', protect, adminOnly, getAllSubscriptions);
 
-    if (subscription) {
-      subscription.type = type;
-      subscription.expiration = expiration;
-      subscription.status = 'active';
-      await subscription.save();
-    } else {
-      subscription = await Subscription.create({
-        userId: req.user._id,
-        type,
-        expiration,
-        status: 'active'
-      });
-    }
-    
-    logger.info(`Suscripción creada/actualizada: ${type} para usuario ${req.user._id}`);
-    res.status(201).json(subscription);
-  } catch (error) {
-    logger.error(`Error en POST /subscriptions: ${error.message}`, { stack: error.stack });
-    res.status(500).json({ message: error.message });
-  }
-});
-
-router.get('/my', protect, async (req, res) => {
-  try {
-    const subscription = await Subscription.findOne({
-      userId: req.user._id,
-      status: 'active'
-    });
-    
-    res.json(subscription || null);
-  } catch (error) {
-    logger.error(`Error en GET /subscriptions/my: ${error.message}`, { stack: error.stack });
-    res.status(500).json({ message: error.message });
-  }
-});
-
-router.get('/', protect, adminOnly, async (req, res) => {
-  try {
-    const subscriptions = await Subscription.find()
-      .populate('userId', 'username email')
-      .sort({ createdAt: -1 });
-    
-    res.json(subscriptions);
-  } catch (error) {
-    logger.error(`Error en GET /subscriptions: ${error.message}`, { stack: error.stack });
-    res.status(500).json({ message: error.message });
-  }
-});
-
-router.delete('/cancel', protect, async (req, res) => {
-  try {
-    const subscription = await Subscription.findOne({
-      userId: req.user._id,
-      status: 'active'
-    });
-
-    if (!subscription) {
-      return res.status(404).json({ message: 'No tienes suscripción activa' });
-    }
-
-    subscription.status = 'cancelled';
-    await subscription.save();
-    
-    logger.info(`Suscripción cancelada para usuario ${req.user._id}`);
-    res.json({ message: 'Suscripción cancelada', subscription });
-  } catch (error) {
-    logger.error(`Error en DELETE /subscriptions/cancel: ${error.message}`, { stack: error.stack });
-    res.status(500).json({ message: error.message });
-  }
-});
+router.delete('/cancel', protect, cancelSubscription);
 
 export default router;

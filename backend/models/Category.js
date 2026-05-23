@@ -1,4 +1,4 @@
-//backend/models/Catalog.js
+//backend/models/Category.js
 
 import mongoose from "mongoose";
 

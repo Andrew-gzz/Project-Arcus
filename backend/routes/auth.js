@@ -6,16 +6,22 @@ import {
   loginUser,
   logoutUser,
   getUserProfile,
+  updateProfile,
+  changePassword,
 } from "../controllers/authController.js";
+import { registerValidator, loginValidator, updateProfileValidator, changePasswordValidator } from "../validators/authValidator.js";
+import { handleValidationErrors } from "../middleware/validate.js";
 
 const router = express.Router();
 
 // Rutas de autenticación
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
+router.post("/register", registerValidator, handleValidationErrors, registerUser);
+router.post("/login", loginValidator, handleValidationErrors, loginUser);
+router.post("/logout", protect, logoutUser);
 
 // Rutas protegidas
 router.get("/me", protect, getUserProfile);
+router.put("/profile", protect, updateProfileValidator, handleValidationErrors, updateProfile);
+router.put("/password", protect, changePasswordValidator, handleValidationErrors, changePassword);
 
 export default router;
